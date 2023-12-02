@@ -9,7 +9,13 @@ const store = createStore({
         },
         products: {
             loading: false,
-            data: []
+            links: [],
+            from: null,
+            to: null,
+            total: null,
+            limit: null,
+            page: 1,
+            data: [],
         }
     },
     actions: {
@@ -33,9 +39,12 @@ const store = createStore({
                     return res;
                 })
         },
-        getProducts({ commit }) {
+        getProducts({ commit }, { url = null, search = '', perPage = 10 } = {}) {
+            url = url || '/product'
             commit('setProductsLoading', true);
-            return axiosClient.get('/product')
+            return axiosClient.get(url, {
+                    params: { search, per_page: perPage }
+                })
                 .then((res) => {
                     commit('setProductsLoading', false);
                     commit('setProducts', res.data);
@@ -63,6 +72,12 @@ const store = createStore({
         },
         setProducts: (state, products) => {
             state.products.data = products.data
+            state.products.links = products.meta.links
+            state.products.from = products.meta.from
+            state.products.to = products.meta.to
+            state.products.page = products.meta.current_page
+            state.products.limit = products.meta.per_page
+            state.products.total = products.meta.total
         },
         setProductsLoading: (state, loading) => {
             state.products.loading = loading

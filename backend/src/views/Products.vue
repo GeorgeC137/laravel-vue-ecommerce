@@ -15,7 +15,7 @@
         <span class="whitespace-nowrap mr-3">Per Page</span>
         <select
           class="appearance-none relative block w-24 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-          @change="getProducts(null)"
+          @change="getProducts()"
           v-model="perPage"
         >
           <option value="5">5</option>
@@ -29,7 +29,7 @@
       <div>
         <input
           v-model="search"
-          @change="getProducts(null)"
+          @change="getProducts()"
           class="appearance-none relative block w-48 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
           placeholder="Type to Search Products"
         />
@@ -65,6 +65,35 @@
           </tr>
         </tbody>
       </table>
+
+      <div class="flex justify-between items-center mt-5">
+        <span> Showing from {{ products.from }} to {{ products.to }} </span>
+
+        <nav
+          v-if="products.total > products.limit"
+          class="relative z-0 inline-flex justify-center rounded-md shadow-md -space-x-px"
+          aria-label="Pagination"
+        >
+          <a
+            href="#"
+            @click="getCurrentPage($event, link)"
+            v-html="link.label"
+            :disabled="!link.url"
+            v-for="(link, ind) in products.links"
+            :key="ind"
+            class="relative inline-flex items-center px-4 py-2 border text-sm font-medium whitespace-nowrap"
+            :class="[
+              link.active
+                ? 'z-10 bg-indigo-50 border-indigo-600 text-indigo-600'
+                : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50',
+              ind === 0 ? 'rounded-l-md' : '',
+              ind === products.links.length - 1 ? 'rounded-r-md' : '',
+              !link.url ? 'bg-gray-100 text-gray-700' : '',
+            ]"
+            aria-current="page"
+          ></a>
+        </nav>
+      </div>
     </template>
   </div>
 </template>
@@ -84,6 +113,17 @@ onMounted(() => {
 });
 
 function getProducts() {
-  store.dispatch("getProducts");
+  store.dispatch("getProducts", {
+    search: search.value,
+    perPage: perPage.value,
+  });
+}
+
+function getCurrentPage(e, link) {
+  e.preventDefault();
+  if (!link.url || link.active) {
+    return;
+  }
+  store.dispatch("getProducts", { url: link.url });
 }
 </script>
