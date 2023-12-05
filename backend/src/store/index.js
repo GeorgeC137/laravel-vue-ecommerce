@@ -16,6 +16,9 @@ const store = createStore({
             limit: null,
             page: 1,
             data: [],
+        },
+        product: {
+            data: {}
         }
     },
     actions: {
@@ -39,11 +42,11 @@ const store = createStore({
                     return res;
                 })
         },
-        getProducts({ commit }, { url = null, search = '', perPage = 10 } = {}) {
+        getProducts({ commit }, { url = null, search = '', perPage = 10, sort_field, sort_direction } = {}) {
             url = url || '/product'
             commit('setProductsLoading', true);
             return axiosClient.get(url, {
-                    params: { search, per_page: perPage }
+                    params: { search, per_page: perPage, sort_field, sort_direction }
                 })
                 .then((res) => {
                     commit('setProductsLoading', false);
@@ -52,6 +55,43 @@ const store = createStore({
                 })
                 .catch(() => {
                     commit('setProductsLoading', false)
+                })
+        },
+        createProduct({ commit }, product) {
+            if (product.image instanceof File) {
+                const form = new FormData();
+                form.append('title', product.title);
+                form.append('image', product.image);
+                form.append('price', product.price);
+                form.append('description', product.description);
+                product = form;
+            }
+
+            return axiosClient.post('/product', product)
+                .then((res) => {
+                    commit('setProduct', res.data)
+                    return res;
+                })
+        },
+        updateProduct({ commit }, product) {
+            const id = product.id
+            if (product.image instanceof File) {
+                const form = new FormData();
+                form.append('id', product.id);
+                form.append('title', product.title);
+                form.append('image', product.image);
+                form.append('price', product.price);
+                form.append('description', product.description);
+                form.append('_method', 'PUT');
+                product = form;
+            } else {
+                product._method = 'PUT'
+            }
+
+            return axiosClient.post(`/product/${id}`, product)
+                .then((res) => {
+                    commit('setProduct', res.data)
+                    return res;
                 })
         }
     },
@@ -81,6 +121,9 @@ const store = createStore({
         },
         setProductsLoading: (state, loading) => {
             state.products.loading = loading
+        },
+        setProduct: (state, product) => {
+            state.product.data = product.data;
         }
     },
     getters: {},

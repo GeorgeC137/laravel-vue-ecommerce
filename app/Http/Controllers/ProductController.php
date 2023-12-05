@@ -16,7 +16,11 @@ class ProductController extends Controller
     {
         $search = request('search', false);
         $perPage = request('per_page', 10);
+        $sortField = request('sort_field', 'updated_at');
+        $sortDirection = request('sort_direction', 'desc');
+
         $query = Product::query();
+        $query->orderBy($sortField, $sortDirection);
 
         if($search) {
             $query->where('title', 'like', "%{$search}%")
