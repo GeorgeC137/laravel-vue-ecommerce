@@ -75,6 +75,22 @@ class ProductController extends Controller
     {
         $validatedData = $request->validated();
 
+        $validatedData['updated_by'] = $request->user()->id;
+
+        $image = $validatedData['image'] ?? null;
+
+        if ($image) {
+            $relativePath = $this->saveImage($image);
+            $validatedData['image'] = URL::to(Storage::url($relativePath));
+            $validatedData['image_mime'] = $image->getClientMimeType();
+            $validatedData['image_size'] = $image->getSize();
+        }
+
+        // Delete old image if exists
+        if ($product->image) {
+            Storage::deleteDirectory('/public/' . dirname($product->image));
+        }
+
         $product->update($validatedData);
 
         return new ProductResource($product);

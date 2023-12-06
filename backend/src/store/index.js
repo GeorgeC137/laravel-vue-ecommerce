@@ -96,6 +96,9 @@ const store = createStore({
         },
         deleteProduct({  }, id) {
             return axiosClient.delete(`/product/${id}`)
+        },
+        getProduct({  }, id) {
+            return axiosClient.get(`/product/${id}`)
         }
     },
     mutations: {

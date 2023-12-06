@@ -86,7 +86,7 @@
           <td class="border-b p-2">{{ product.id }}</td>
           <td class="border-b p-2">
             <img
-              :src="product.image ? product.image : 'https://picsum.photos/200'"
+              :src="product.image_url ? product.image_url : 'https://picsum.photos/200'"
               :alt="product.title"
               class="w-6"
             />
@@ -129,6 +129,7 @@
                           active ? 'bg-indigo-600 text-white' : 'text-gray-900',
                           'group flex w-full items-center rounded-md px-2 py-2 text-sm',
                         ]"
+                        @click="editProduct(product)"
                       >
                         <PencilIcon
                           :active="active"
@@ -209,6 +210,8 @@ const products = computed(() => store.state.products);
 const sortField = ref("updated_at");
 const sortDirection = ref("desc");
 
+const emit = defineEmits(["clickEdit"]);
+
 onMounted(() => {
   getProducts();
 });
@@ -243,6 +246,10 @@ function sortProducts(field) {
   }
 
   getProducts();
+}
+
+function editProduct(product) {
+  emit("clickEdit", product);
 }
 
 function deleteProduct(product) {

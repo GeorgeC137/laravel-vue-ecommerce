@@ -35,7 +35,7 @@
                 <DialogTitle as="h3" class="text-lg leading-6 font-medium text-gray-900">
                   {{
                     product.id
-                      ? `Update product: ${props.product.title}`
+                      ? `Update product: "${props.product.title}"`
                       : "Create new Product"
                   }}
                 </DialogTitle>
