@@ -93,6 +93,9 @@ const store = createStore({
                     commit('setProduct', res.data)
                     return res;
                 })
+        },
+        deleteProduct({  }, id) {
+            return axiosClient.delete(`/product/${id}`)
         }
     },
     mutations: {

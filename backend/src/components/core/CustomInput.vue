@@ -25,7 +25,7 @@
           :value="props.modelValue"
           :name="name"
           :required="required"
-          @input="emit('update:modelValue', $event.target.files[0])"
+          @input="emit('change', $event.target.files[0])"
           :class="inputClasses"
           :placeholder="label"
         />
