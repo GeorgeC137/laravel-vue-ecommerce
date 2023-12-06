@@ -1,4 +1,4 @@
-This is an E-commerce Website with Vue.js Admin.
+This is an E-commerce Website with Vue.js Admin Panel.
 Built These Technologies:
 1. Laravel Framework
 2. Vue.js
