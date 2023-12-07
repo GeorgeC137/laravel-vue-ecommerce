@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use Exception;
 use App\Models\Product;
 use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\URL;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
 use App\Http\Resources\ProductResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\ProductListResource;
-use Exception;
 
 class ProductController extends Controller
 {

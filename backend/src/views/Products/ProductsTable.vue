@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white shadow p-4 rounded-lg">
+  <div class="bg-white shadow p-4 rounded-lg animate-fade-in-down">
     <div class="flex justify-between border-b-2 pb-3">
       <div class="flex items-center">
         <span class="whitespace-nowrap mr-3">Per Page</span>
@@ -75,14 +75,14 @@
 
       <tbody v-if="products.loading">
         <tr>
-          <td colspan="5">
+          <td colspan="6">
             <Spinner class="my-4" />
           </td>
         </tr>
       </tbody>
 
       <tbody v-else>
-        <tr v-for="product in products.data">
+        <tr v-for="(product, ind) in products.data">
           <td class="border-b p-2">{{ product.id }}</td>
           <td class="border-b p-2">
             <img
