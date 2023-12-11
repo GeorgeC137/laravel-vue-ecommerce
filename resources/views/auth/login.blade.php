@@ -12,19 +12,16 @@
             <a href="{{ route('register') }}" class="text-sm text-purple-700 hover:text-purple-600">create new account</a>
         </p>
         <div class="mb-4">
-            <input id="loginEmail" value="{{ old('email') }}" type="email" name="email" placeholder="Your email address"
-                class="border-gray-300 focus:border-purple-500 focus:outline-none focus:ring-purple-500 rounded-md w-full" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <x-text-input id="loginEmail" :errors="$errors" :value="old('email')" type="email" name="email"
+                placeholder="Your email address" />
         </div>
         <div class="mb-4">
-            <input id="loginPassword" type="password" name="password" placeholder="Your password"
-                class="border-gray-300 focus:border-purple-500 focus:outline-none focus:ring-purple-500 rounded-md w-full" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            <x-text-input id="loginPassword" :errors="$errors" type="password" name="password" placeholder="Your password" />
         </div>
 
         <div class="flex justify-between items-center mb-5">
             <div class="flex items-center">
-                <input id="loginRememberMe" type="checkbox"
+                <input id="loginRememberMe" name="remember" type="checkbox"
                     class="mr-3 rounded border-gray-300 text-purple-500 focus:ring-purple-500" />
                 <label for="loginRememberMe">Remember Me</label>
             </div>
