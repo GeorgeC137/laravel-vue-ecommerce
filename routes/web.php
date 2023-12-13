@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -15,11 +16,18 @@ use App\Http\Controllers\ProfileController;
 |
 */
 
-Route::get('/', [ProductController::class, 'index'])->name('home');
+Route::middleware(['guestOrVerified'])->group(function () {
+    Route::get('/', [ProductController::class, 'index'])->name('home');
+    Route::get('/product/{product:slug}', [ProductController::class, 'show'])->name('products.show');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    Route::prefix('/cart')->name('cart.')->group(function () {
+        Route::get('/', [CartController::class, 'index'])->name('index');
+        Route::get('/add/{product:slug}', [CartController::class, 'add'])->name('add');
+        Route::get('/remove/{product:slug}', [CartController::class, 'remove'])->name('remove');
+        Route::get('/update-quantity/{product:slug}', [CartController::class, 'updateQuantity'])->name('update-quantity');
+    });
+});
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -27,4 +35,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
