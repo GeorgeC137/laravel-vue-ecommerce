@@ -129,7 +129,7 @@ class CartController extends Controller
                 'count' => Cart::getCartItemsCount()
             ]);
         } else {
-            $cartItems = json_decode($request->cookie('cart_items', '[]'). true);
+            $cartItems = json_decode($request->cookie('cart_items', '[]'), true);
 
             foreach ($cartItems as &$item) {
                 if ($item['product_id'] === $product->id) {

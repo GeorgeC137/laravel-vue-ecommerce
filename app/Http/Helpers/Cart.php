@@ -3,13 +3,14 @@
 namespace App\Http\Helpers;
 
 use App\Models\CartItem;
-use Illuminate\Http\Request;
 
 class Cart
 {
     // Display the number of items available in the cart
-    public static function getCartItemsCount(Request $request)
+    public static function getCartItemsCount()
     {
+        $request = request();
+
         $user = $request->user();
 
         if ($user) {
@@ -25,8 +26,10 @@ class Cart
     }
 
     // Returns an array of cart items user have. If user is authorized, cart items are from database otherwise calls getCookieCartItems()
-    public static function getCartItems(Request $request)
+    public static function getCartItems()
     {
+        $request = request();
+
         $user = $request->user();
 
         if ($user) {
@@ -39,8 +42,10 @@ class Cart
     }
 
     // Returns the cart items user has in cookie
-    public static function getCookieCartItems(Request $request)
+    public static function getCookieCartItems()
     {
+        $request = request();
+
         return json_decode($request->cookie('cart_items', '[]'), true);
     }
 
@@ -53,8 +58,10 @@ class Cart
     }
 
     // Moves the cart items from cookie into database after user registration
-    public static function moveCartItemsIntoDb(Request $request)
+    public static function moveCartItemsIntoDb()
     {
+        $request = request();
+
         $cartItems = self::getCookieCartItems();
         $dbCartItems = CartItem::where('user_id', $request->user()->id)->get()->keyBy('product_id');
         $newCartItems = [];
