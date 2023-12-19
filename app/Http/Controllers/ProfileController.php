@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AddressType;
+use App\Http\Requests\ProfileRequest;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Country;
+use App\Models\CustomerAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,9 +16,21 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
 
-    public function view()
+    public function view(Request $request)
     {
-        return view('profile.view');
+        $user = $request->user();
+
+        $customer = $user->customer;
+
+        $shippingAddress = $customer->shippingAddress ?: new CustomerAddress(['type' => AddressType::Shipping]);
+
+        $billingAddress = $customer->billingAddress ?: new CustomerAddress(['type' => AddressType::Billing]);
+
+        // dd($customer, $shippingAddress->attributesToArray(), $billingAddress, $billingAddress->customer);
+
+        $countries = Country::query()->orderBy('name')->get();
+
+        return view('profile.view', compact('user', 'customer', 'shippingAddress', 'billingAddress', 'countries'));
     }
     /**
      * Display the user's profile form.
