@@ -20,12 +20,12 @@
                         'zip_code' => old('billing.zip_code', $billingAddress->zip_code),
                     ]) }},
                     shippingAddress: {{ json_encode([
-                        'address1' => old('shipping.address1', $billingAddress->address1),
-                        'address2' => old('shipping.address2', $billingAddress->address2),
-                        'city' => old('shipping.city', $billingAddress->city),
-                        'state' => old('shipping.state', $billingAddress->state),
-                        'country_code' => old('shipping.country_code', $billingAddress->country_code),
-                        'zip_code' => old('shipping.zip_code', $billingAddress->zip_code),
+                        'address1' => old('shipping.address1', $shippingAddress->address1),
+                        'address2' => old('shipping.address2', $shippingAddress->address2),
+                        'city' => old('shipping.city', $shippingAddress->city),
+                        'state' => old('shipping.state', $shippingAddress->state),
+                        'country_code' => old('shipping.country_code', $shippingAddress->country_code),
+                        'zip_code' => old('shipping.zip_code', $shippingAddress->zip_code),
                     ]) }},
                     get billingCountryStates() {
                         const country = this.countries.find((c) => c.code === this.billingAddress.country_code)
@@ -127,17 +127,17 @@
 
                     <div class="grid grid-cols-2 mb-3 gap-3">
                         <div>
-                            <x-text-input type="select" name="shiipping[country_code]" class="w-full rounded focus:border-purple-600
+                            <x-text-input type="select" name="shipping[country_code]" class="w-full rounded focus:border-purple-600
                             focus:ring-purple-600 border-gray-300" x-model="shippingAddress.country_code">
                                 <option value="">Select Country</option>
                                 <template x-for="country of countries" :key="country.code">
-                                    <option :value="country.code" x-text="counrty.name" :selected="country.code === shippindAddress.country_code"></option>
+                                    <option :value="country.code" x-text="country.name" :selected="country.code === shippingAddress.country_code"></option>
                                 </template>
                             </x-text-input>
                         </div>
                         <div>
                             <template x-if="shippingCountryStates">
-                                <x-text-input name="shppping[state]" type="select" x-model="shippingAddres.state" class="w-full rounded focus:border-purple-600 focus:ring-purple-600 border-gray-300">
+                                <x-text-input name="shipping[state]" type="select" x-model="shippingAddress.state" class="w-full rounded focus:border-purple-600 focus:ring-purple-600 border-gray-300">
                                     <option value="">Select State</option>
                                     <template x-for="[code, state] of Object.entries(shippingCountryStates)" :key="code">
                                         <option :value="code" x-text="state" :selected="code === shippingAddress.state"></option>
@@ -150,6 +150,23 @@
                         </div>
                     </div>
                     <x-primary-button class="w-full">Update</x-primary-button>
+                </form>
+            </div>
+
+            <div class="bg-white p-3 shadow rounded-lg">
+                <form action="{{ route('profile.password_update') }}" method="post">
+                    @csrf
+                    <h2 class="text-xl font-semibold mb-2">Update Password</h2>
+                    <div class="mb-3">
+                        <x-text-input type="password" name="old_password" :value="old('old_password')" class="w-full border-gray-300 focus:border-purple-600 rounded focus:ring-purple-600" placeholder="Your Current Password" />
+                    </div>
+                    <div class="mb-3">
+                        <x-text-input type="password" name="new_password" class="w-full border-gray-300 focus:border-purple-600 rounded focus:ring-purple-600" placeholder="Your New Password" />
+                    </div>
+                    <div class="mb-3">
+                        <x-text-input type="password" name="new_password_confirmation" class="w-full border-gray-300 focus:border-purple-600 rounded focus:ring-purple-600" placeholder="Confirm New Password" />
+                    </div>
+                    <x-primary-button>Update</x-primary-button>
                 </form>
             </div>
         </div>
