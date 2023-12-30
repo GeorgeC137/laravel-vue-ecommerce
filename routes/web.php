@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'view'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'store'])->name('profile.update');
     Route::post('/profile/password-update', [ProfileController::class, 'passwordUpdate'])->name('profile.password_update');
+    Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 });
 
 require __DIR__ . '/auth.php';
