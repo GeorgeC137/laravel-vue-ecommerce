@@ -6,14 +6,13 @@ use App\Models\Product;
 use App\Http\Helpers\Cart;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cookie;
 
 class CartController extends Controller
 {
     public function index()
     {
-        list($products, $cartItems) = $this->getCartItemsAndProducts();
+        list($products, $cartItems) = Cart::getCartItemsAndProducts();
 
         $total = 0;
 
@@ -138,53 +137,5 @@ class CartController extends Controller
                 'count' => Cart::getCountFromItems($cartItems)
             ]);
         }
-    }
-
-    public function checkout(Request $request)
-    {
-        $stripe = new \Stripe\StripeClient(getenv('STRIPE_SECRET_KEY'));
-
-        list($products, $cartItems) = $this->getCartItemsAndProducts();
-
-        $lineItems = [];
-
-        foreach ($products as $product) {
-            $lineItems[] = [
-                'price_data' => [
-                    'currency' => 'usd',
-                    'product_data' => [
-                        'name' => $product->title,
-                        'images' => ['https://picsum.photos/400']
-                    ],
-                    'unit_amount_decimal' => $product->price * 100,
-                ],
-                'quantity' => $cartItems[$product->id]['quantity'],
-            ];
-        }
-
-        $checkout_session = $stripe->checkout->sessions->create([
-            'line_items' => $lineItems,
-            'mode' => 'payment',
-            'success_url' => 'http://localhost:4242/success',
-            'cancel_url' => 'http://localhost:4242/cancel',
-        ]);
-
-        return redirect($checkout_session->url);
-    }
-
-    private function getCartItemsAndProducts()
-    {
-        $cartItems = Cart::getCartItems();
-
-        $ids = Arr::pluck($cartItems, 'product_id');
-
-        $products = Product::query()->whereIn('id', $ids)->get();
-
-        $cartItems = Arr::keyBy($cartItems, 'product_id');
-
-        return [
-            $products,
-            $cartItems
-        ];
     }
 }
