@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\CartItem;
 use App\Enums\OrderStatus;
@@ -20,6 +21,7 @@ class CheckoutController extends Controller
 
         list($products, $cartItems) = Cart::getCartItemsAndProducts();
 
+        $orderItems = [];
         $lineItems = [];
         $totalPrice = 0;
 
@@ -37,9 +39,12 @@ class CheckoutController extends Controller
                 ],
                 'quantity' => $quantity,
             ];
+            $orderItems[] = [
+                'product_id' => $product->id,
+                'unit_price' => $product->price,
+                'quantity' => $quantity
+            ];
         }
-
-        // dd(route('checkout.success', [], true), route('checkout.failure', [], true));
 
         $checkout_session = $stripe->checkout->sessions->create([
             'line_items' => $lineItems,
@@ -49,6 +54,7 @@ class CheckoutController extends Controller
             'cancel_url' => route('checkout.failure', [], true),
         ]);
 
+        // Create Order
         $orderData = [
             'total_price' => $totalPrice,
             'status' => OrderStatus::Unpaid,
@@ -58,6 +64,13 @@ class CheckoutController extends Controller
 
         $order = Order::create($orderData);
 
+        // Create OrderItems
+        foreach ($orderItems as $orderItem) {
+            $orderItem['order_id'] = $order->id;
+            OrderItem::create($orderItem);
+        }
+
+        // Create Payment
         $paymentData = [
             'order_id' => $order->id,
             'status' => PaymentStatus::Pending,
@@ -121,7 +134,37 @@ class CheckoutController extends Controller
 
     public function checkoutOrder(Request $request, Order $order)
     {
-        dd($order);
+        $user = $request->user();
+
+        $stripe = new \Stripe\StripeClient(getenv('STRIPE_SECRET_KEY'));
+
+        $lineItems = [];
+        foreach ($order->items as $item) {
+            $lineItems[] = [
+                'price_data' => [
+                    'currency' => 'usd',
+                    'product_data' => [
+                        'name' => $item->product->title,
+                        'images' => ['https://picsum.photos/400']
+                    ],
+                    'unit_amount' => $item->unit_price * 100,
+                ],
+                'quantity' => $item->quantity,
+            ];
+        }
+
+        $checkout_session = $stripe->checkout->sessions->create([
+            'line_items' => $lineItems,
+            'customer_creation' => 'always',
+            'mode' => 'payment',
+            'success_url' => route('checkout.success', [], true).'?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('checkout.failure', [], true),
+        ]);
+
+        $order->payment->session_id = $checkout_session->id;
+        $order->payment->save();
+
+        return redirect($checkout_session->url);
     }
 
     // public function webhook()
