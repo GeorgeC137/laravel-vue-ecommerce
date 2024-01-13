@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\CartItem;
+use App\Models\OrderItem;
 use App\Enums\OrderStatus;
 use App\Http\Helpers\Cart;
 use App\Enums\PaymentStatus;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CheckoutController extends Controller
 {
@@ -50,7 +51,7 @@ class CheckoutController extends Controller
             'line_items' => $lineItems,
             'customer_creation' => 'always',
             'mode' => 'payment',
-            'success_url' => route('checkout.success', [], true).'?session_id={CHECKOUT_SESSION_ID}',
+            'success_url' => route('checkout.success', [], true) . '?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('checkout.failure', [], true),
         ]);
 
@@ -85,6 +86,9 @@ class CheckoutController extends Controller
 
         // dd($checkout_session->id);
 
+        // Delete Cart Items After Checkout
+        CartItem::where('user_id', $user->id)->delete();
+
         return redirect($checkout_session->url);
     }
 
@@ -92,37 +96,36 @@ class CheckoutController extends Controller
     {
         $stripe = new \Stripe\StripeClient(getenv('STRIPE_SECRET_KEY'));
 
-        $sessionId = $request->get('session_id');
-
         $user = $request->user();
 
         try {
-            $session = $stripe->checkout->sessions->retrieve($sessionId);
+		    $session_id = $request->get('session_id');
+
+            $session = $stripe->checkout->sessions->retrieve($session_id);
 
             if (!$session) {
                 return view('checkout.failure', ['message' => 'Invalid Session ID']);
             }
 
-            $payment = Payment::query()->where(['session_id' => $session->id, 'status' => PaymentStatus::Pending])->first();
+            $payment = Payment::query()
+                ->where(['session_id' => $session_id])
+                ->whereIn('status', [PaymentStatus::Paid, PaymentStatus::Pending])
+                ->first();
 
             if (!$payment) {
-                return view('checkout.failure', ['message' => 'Payment Does Not Exist']);
+                throw new NotFoundHttpException();
             }
 
-            $payment->status = PaymentStatus::Paid;
-            $payment->update();
-
-            $order = $payment->order;
-
-            $order->status = OrderStatus::Paid;
-            $order->update();
-
-            CartItem::where('user_id', $user->id)->delete();
+            if ($payment->status === PaymentStatus::Pending) {
+                $this->updateOrderAndSession($payment);
+            }
 
             $customer = $stripe->customers->retrieve($session->customer);
 
             return view('checkout.success', compact('customer'));
-        } catch(\Exception $e) {
+        } catch (NotFoundHttpException $e) {
+            throw $e;
+        } catch (\Exception $e) {
             return view('checkout.failure', ['message' => $e->getMessage()]);
         }
     }
@@ -134,8 +137,6 @@ class CheckoutController extends Controller
 
     public function checkoutOrder(Request $request, Order $order)
     {
-        $user = $request->user();
-
         $stripe = new \Stripe\StripeClient(getenv('STRIPE_SECRET_KEY'));
 
         $lineItems = [];
@@ -157,7 +158,7 @@ class CheckoutController extends Controller
             'line_items' => $lineItems,
             'customer_creation' => 'always',
             'mode' => 'payment',
-            'success_url' => route('checkout.success', [], true).'?session_id={CHECKOUT_SESSION_ID}',
+            'success_url' => route('checkout.success', [], true) . '?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('checkout.failure', [], true),
         ]);
 
@@ -167,38 +168,57 @@ class CheckoutController extends Controller
         return redirect($checkout_session->url);
     }
 
-    // public function webhook()
-    // {
-    //     // This is your Stripe CLI webhook secret for testing your endpoint locally.
-    //     $endpoint_secret = getenv('STRIPE_WEBHOOK_SECRET');
+    public function webhook()
+    {
+        $stripe = new \Stripe\StripeClient(getenv('STRIPE_SECRET_KEY'));
 
-    //     $payload = @file_get_contents('php://input');
-    //     $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
-    //     $event = null;
+        $endpoint_secret = getenv('STRIPE_WEBHOOK_SECRET');
 
-    //     try {
-    //         $event = \Stripe\Webhook::constructEvent(
-    //             $payload,
-    //             $sig_header,
-    //             $endpoint_secret
-    //         );
-    //     } catch (\UnexpectedValueException $e) {
-    //         // Invalid payload
-    //         return response(400);
-    //     } catch (\Stripe\Exception\SignatureVerificationException $e) {
-    //         // Invalid signature
-    //         return response(400);
-    //     }
+        $payload = @file_get_contents('php://input');
+        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+        $event = null;
 
-    //     // Handle the event
-    //     switch ($event->type) {
-    //         case 'payment_intent.succeeded':
-    //             $paymentIntent = $event->data->object;
-    //             // ... handle other event types
-    //         default:
-    //             echo 'Received unknown event type ' . $event->type;
-    //     }
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $payload,
+                $sig_header,
+                $endpoint_secret
+            );
+        } catch (\UnexpectedValueException $e) {
+            // Invalid payload
+            return response('', 401);
+        } catch (\Stripe\Exception\SignatureVerificationException $e) {
+            // Invalid signature
+            return response('', 402);
+        }
 
-    //     return response(200);
-    // }
+        // Handle the event
+        switch ($event->type) {
+            case 'checkout.session.completed':
+                $paymentIntent = $event->data->object;
+                $sessionId = $paymentIntent['id'];
+
+                $payment = Payment::query()->where(['session_id' => $sessionId, 'status' => PaymentStatus::Pending])->first();
+
+                if ($payment) {
+                    $this->updateOrderAndSession($payment);
+                }
+
+            default:
+                echo 'Received unknown event type ' . $event->type;
+        }
+
+        return response('', 200);
+    }
+
+    private function updateOrderAndSession(Payment $payment)
+    {
+        $payment->status = PaymentStatus::Paid;
+        $payment->update();
+
+        $order = $payment->order;
+
+        $order->status = OrderStatus::Paid;
+        $order->update();
+    }
 }
