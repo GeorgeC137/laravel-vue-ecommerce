@@ -5,7 +5,7 @@
         <span class="whitespace-nowrap mr-3">Per Page</span>
         <select
           class="appearance-none relative block w-24 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-          @change="getProducts()"
+          @change="getOrders()"
           v-model="perPage"
         >
           <option value="5">5</option>
@@ -15,14 +15,14 @@
           <option value="50">50</option>
           <option value="100">100</option>
         </select>
-        <span class="ml-3">Found {{ products.total }} products</span>
+        <span class="ml-3">Found {{ orders.total }} orders</span>
       </div>
       <div>
         <input
           v-model="search"
-          @change="getProducts()"
+          @change="getOrders()"
           class="appearance-none relative block w-48 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-          placeholder="Type to Search Products"
+          placeholder="Type to Search Orders"
         />
       </div>
     </div>
@@ -31,7 +31,7 @@
       <thead>
         <tr>
           <TableHeaderCell
-            @click="sortProducts"
+            @click="sortOrders"
             class="border-b-2 p-2 text-left"
             field="id"
             :sort-field="sortField"
@@ -39,34 +39,36 @@
             >ID</TableHeaderCell
           >
           <TableHeaderCell
+            @click="sortOrders"
             class="border-b-2 p-2 text-left"
+            field="created_at"
             :sort-field="sortField"
             :sort-direction="sortDirection"
-            >Image</TableHeaderCell
+            >Date</TableHeaderCell
           >
           <TableHeaderCell
-            @click="sortProducts"
+            @click="sortOrders"
             class="border-b-2 p-2 text-left"
-            field="title"
+            field="status"
             :sort-field="sortField"
             :sort-direction="sortDirection"
-            >Title</TableHeaderCell
+            >Status</TableHeaderCell
           >
           <TableHeaderCell
-            @click="sortProducts"
+            @click="sortOrders"
             class="border-b-2 p-2 text-left"
-            field="price"
+            field="total_price"
             :sort-field="sortField"
             :sort-direction="sortDirection"
-            >Price</TableHeaderCell
+            >Total</TableHeaderCell
           >
           <TableHeaderCell
-            @click="sortProducts"
+            @click="sortOrders"
             class="border-b-2 p-2 text-left"
-            field="updated_at"
+            field="number_of_items"
             :sort-field="sortField"
             :sort-direction="sortDirection"
-            >Last Updated At</TableHeaderCell
+            >Items</TableHeaderCell
           >
           <TableHeaderCell field="actions" class="border-b-2 p-2 text-left"
             >Actions</TableHeaderCell
@@ -74,32 +76,28 @@
         </tr>
       </thead>
 
-      <tbody v-if="products.loading || !products.data.length">
+      <tbody v-if="orders.loading || !orders.data.length">
         <tr>
           <td colspan="6">
-            <Spinner class="my-4" v-if="products.loading" />
-            <p v-else class="text-gray-700 py-8 text-center">There are no products</p>
+            <Spinner class="my-4" v-if="orders.loading" />
+            <p v-else class="text-gray-700 py-8 text-center">There are no orders</p>
           </td>
         </tr>
       </tbody>
 
       <tbody v-else>
-        <tr v-for="(product, ind) in products.data">
-          <td class="border-b p-2">{{ product.id }}</td>
+        <tr v-for="(order, ind) in orders.data">
+          <td class="border-b p-2">{{ order.id }}</td>
+          <td class="border-b p-2">{{ order.created_at }}</td>
           <td class="border-b p-2">
-            <img
-              :src="product.image_url ? product.image_url : 'https://picsum.photos/200'"
-              :alt="product.title"
-              class="w-6"
-            />
+            <span>{{ order.status }}</span>
           </td>
           <td
             class="border-b p-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
           >
-            {{ product.title }}
+            {{ order.total_price }}
           </td>
-          <td class="border-b p-2">{{ product.price }}</td>
-          <td class="border-b p-2">{{ product.updated_at }}</td>
+          <td class="border-b p-2">{{ order.number_of_items }}</td>
           <td class="border-b p-2">
             <Menu as="div" class="relative inline-block text-left">
               <div>
@@ -131,7 +129,7 @@
                           active ? 'bg-indigo-600 text-white' : 'text-gray-900',
                           'group flex w-full items-center rounded-md px-2 py-2 text-sm',
                         ]"
-                        @click="editProduct(product)"
+                        @click="viewOrder(order)"
                       >
                         <PencilIcon
                           :active="active"
@@ -147,7 +145,7 @@
                           active ? 'bg-indigo-600 text-white' : 'text-gray-900',
                           'group flex w-full items-center rounded-md px-2 py-2 text-sm',
                         ]"
-                        @click="deleteProduct(product)"
+                        @click="deleteOrder(order)"
                       >
                         <TrashIcon
                           :active="active"
@@ -166,11 +164,14 @@
       </tbody>
     </table>
 
-    <div v-if="!products.loading && products.data.length" class="flex justify-between items-center mt-5">
-      <span> Showing from {{ products.from }} to {{ products.to }} </span>
+    <div
+      v-if="!orders.loading && orders.data.length"
+      class="flex justify-between items-center mt-5"
+    >
+      <span> Showing from {{ orders.from }} to {{ orders.to }} </span>
 
       <nav
-        v-if="products.total > products.limit"
+        v-if="orders.total > orders.limit"
         class="relative z-0 inline-flex justify-center rounded-md shadow-md -space-x-px"
         aria-label="Pagination"
       >
@@ -179,7 +180,7 @@
           @click="getCurrentPage($event, link)"
           v-html="link.label"
           :disabled="!link.url"
-          v-for="(link, ind) in products.links"
+          v-for="(link, ind) in orders.links"
           :key="ind"
           class="relative inline-flex items-center px-4 py-2 border text-sm font-medium whitespace-nowrap"
           :class="[
@@ -187,7 +188,7 @@
               ? 'z-10 bg-indigo-50 border-indigo-600 text-indigo-600'
               : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50',
             ind === 0 ? 'rounded-l-md' : '',
-            ind === products.links.length - 1 ? 'rounded-r-md' : '',
+            ind === orders.links.length - 1 ? 'rounded-r-md' : '',
             !link.url ? 'bg-gray-100 text-gray-700' : '',
           ]"
           aria-current="page"
@@ -204,22 +205,22 @@ import { PencilIcon, TrashIcon, EllipsisVerticalIcon } from "@heroicons/vue/24/o
 import store from "../../store";
 import Spinner from "../../components/core/Spinner.vue";
 import TableHeaderCell from "../../components/core/Table/TableHeaderCell.vue";
-import { PRODUCTS_PER_PAGE } from "../../constants";
+import { ORDERS_PER_PAGE } from "../../constants";
 
-const perPage = ref(PRODUCTS_PER_PAGE);
+const perPage = ref(ORDERS_PER_PAGE);
 const search = ref("");
-const products = computed(() => store.state.products);
+const orders = computed(() => store.state.orders);
 const sortField = ref("updated_at");
 const sortDirection = ref("desc");
 
-const emit = defineEmits(["clickEdit"]);
+const emit = defineEmits(["clickView"]);
 
 onMounted(() => {
-  getProducts();
+  getOrders();
 });
 
-function getProducts() {
-  store.dispatch("getProducts", {
+function getOrders() {
+  store.dispatch("getOrders", {
     search: search.value,
     perPage: perPage.value,
     sort_field: sortField.value,
@@ -232,10 +233,10 @@ function getCurrentPage(e, link) {
   if (!link.url || link.active) {
     return;
   }
-  store.dispatch("getProducts", { url: link.url });
+  store.dispatch("getOrders", { url: link.url });
 }
 
-function sortProducts(field) {
+function sortOrders(field) {
   if (sortField.value === field) {
     if (sortDirection.value === "asc") {
       sortDirection.value = "desc";
@@ -247,21 +248,21 @@ function sortProducts(field) {
     sortDirection.value = "asc";
   }
 
-  getProducts();
+  getOrders();
 }
 
-function editProduct(product) {
-  emit("clickEdit", product);
+function viewOrder(order) {
+  emit("clickView", order);
 }
 
-function deleteProduct(product) {
-  if (!confirm("Are you sure you want to delete this product?")) {
+function deleteOrder(order) {
+  if (!confirm("Are you sure you want to delete this order?")) {
     return;
   }
 
-  store.dispatch("deleteProduct", product.id).then(() => {
+  store.dispatch("deleteOrder", order.id).then(() => {
     // TODO show Notification
-    store.dispatch("getProducts");
+    store.dispatch("getOrders");
   });
 }
 </script>

@@ -21,6 +21,16 @@
       <span class="text-xs">Products</span>
     </router-link>
     <router-link
+      :to="{ name: 'app.orders' }"
+      class="flex items-center hover:bg-black/30 rounded p-2 transition-colors"
+    >
+      <span class="mr-2 text-gray-300">
+        <ViewColumnsIcon class="w-5" />
+      </span>
+
+      <span class="text-xs">Orders</span>
+    </router-link>
+    <router-link
       :to="{ name: 'app.products' }"
       class="flex items-center hover:bg-black/30 rounded p-2 transition-colors"
     >

@@ -17,6 +17,16 @@ const store = createStore({
             page: 1,
             data: [],
         },
+        orders: {
+            loading: false,
+            links: [],
+            from: null,
+            to: null,
+            total: null,
+            limit: null,
+            page: 1,
+            data: [],
+        },
         product: {
             data: {}
         }
