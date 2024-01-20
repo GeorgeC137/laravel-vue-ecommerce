@@ -20,7 +20,7 @@ class ProductFactory extends Factory
             'title' => fake()->text(),
             'image' => fake()->imageUrl(),
             'description' => fake()->realText(2000),
-            'price' => fake()->randomFloat(2, 20, 5000),
+            'price' => fake()->randomFloat(2, 200, 5000),
             'created_at' => now(),
             'updated_at' => now(),
             'created_by' => 1,

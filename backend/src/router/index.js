@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../views/Dashboard.vue';
 import Products from '../views/Products/Products.vue';
 import Orders from '../views/Orders/Orders.vue';
+import OrderView from '../views/Orders/OrderView.vue';
 import Login from '../views/Login.vue';
 import RequestPassword from '../views/RequestPassword.vue';
 import ResetPassword from '../views/ResetPassword.vue';
@@ -30,6 +31,11 @@ const routes = [
                 path: 'orders',
                 name: 'app.orders',
                 component: Orders
+            },
+            {
+                path: 'orders/:id',
+                name: 'app.orders.view',
+                component: OrderView
             }
         ]
     },

@@ -16,7 +16,7 @@ $attributeName = preg_replace('/(\w+)\[(\w+)]/', '$1.$2', $attributes['name']);
         <select {{ $disabled ? 'disabled' : '' }} {!! $attributes->merge([
             'class' =>
                 'border-gray-300 focus:border-purple-500 focus:outline-none focus:ring-purple-500 rounded-md w-full ' .
-                ($errors->has($attributeName) ? $errorClasses : (old($attributeName) ? $successClasses : $defaultClasses)),
+                ($errors->has($attributeName) ? $errorClasses : (old($attributeName) ? $successClasses : $defaultClasses))
         ]) !!}>
             {{ $slot }}
         </select>
@@ -24,7 +24,7 @@ $attributeName = preg_replace('/(\w+)\[(\w+)]/', '$1.$2', $attributes['name']);
         <input {{ $disabled ? 'disabled' : '' }} type="{{ $type }}" {!! $attributes->merge([
             'class' =>
                 'border-gray-300 focus:border-purple-500 focus:outline-none focus:ring-purple-500 rounded-md w-full ' .
-                ($errors->has($attributeName) ? $errorClasses : (old($attributeName) ? $successClasses : $defaultClasses)),
+                ($errors->has($attributeName) ? $errorClasses : (old($attributeName) ? $successClasses : $defaultClasses))
         ]) !!}>
     @endif
 

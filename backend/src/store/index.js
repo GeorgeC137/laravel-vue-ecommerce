@@ -53,7 +53,7 @@ const store = createStore({
                 })
         },
         getProducts({ commit }, { url = null, search = '', perPage = 10, sort_field, sort_direction } = {}) {
-            url = url || '/product'
+            url = url || '/products'
             commit('setProductsLoading', true);
             return axiosClient.get(url, {
                     params: { search, per_page: perPage, sort_field, sort_direction }
@@ -67,6 +67,21 @@ const store = createStore({
                     commit('setProductsLoading', false)
                 })
         },
+        getOrders({ commit }, { url = null, search = '', perPage = 10, sort_field, sort_direction } = {}) {
+            url = url || '/orders'
+            commit('setOrdersLoading', true);
+            return axiosClient.get(url, {
+                    params: { search, per_page: perPage, sort_field, sort_direction }
+                })
+                .then((res) => {
+                    commit('setOrdersLoading', false);
+                    commit('setOrders', res.data);
+                    return res;
+                })
+                .catch(() => {
+                    commit('setOrdersLoading', false)
+                })
+        },
         createProduct({ commit }, product) {
             if (product.image instanceof File) {
                 const form = new FormData();
@@ -77,7 +92,7 @@ const store = createStore({
                 product = form;
             }
 
-            return axiosClient.post('/product', product)
+            return axiosClient.post('/products', product)
                 .then((res) => {
                     commit('setProduct', res.data)
                     return res;
@@ -98,17 +113,20 @@ const store = createStore({
                 product._method = 'PUT'
             }
 
-            return axiosClient.post(`/product/${id}`, product)
+            return axiosClient.post(`/products/${id}`, product)
                 .then((res) => {
                     commit('setProduct', res.data)
                     return res;
                 })
         },
         deleteProduct({  }, id) {
-            return axiosClient.delete(`/product/${id}`)
+            return axiosClient.delete(`/products/${id}`)
         },
         getProduct({  }, id) {
-            return axiosClient.get(`/product/${id}`)
+            return axiosClient.get(`/products/${id}`)
+        },
+        getOrder({  }, id) {
+            return axiosClient.get(`/orders/${id}`)
         }
     },
     mutations: {
@@ -135,8 +153,20 @@ const store = createStore({
             state.products.limit = products.meta.per_page
             state.products.total = products.meta.total
         },
+        setOrders: (state, orders) => {
+            state.orders.data = orders.data
+            state.orders.links = orders.meta.links
+            state.orders.from = orders.meta.from
+            state.orders.to = orders.meta.to
+            state.orders.page = orders.meta.current_page
+            state.orders.limit = orders.meta.per_page
+            state.orders.total = orders.meta.total
+        },
         setProductsLoading: (state, loading) => {
             state.products.loading = loading
+        },
+        setOrdersLoading: (state, loading) => {
+            state.orders.loading = loading
         },
         setProduct: (state, product) => {
             state.product.data = product.data;

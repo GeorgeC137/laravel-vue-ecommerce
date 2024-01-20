@@ -98,7 +98,7 @@
           >
             {{ product.title }}
           </td>
-          <td class="border-b p-2">{{ product.price }}</td>
+          <td class="border-b p-2">${{ product.price }}</td>
           <td class="border-b p-2">{{ product.updated_at }}</td>
           <td class="border-b p-2">
             <Menu as="div" class="relative inline-block text-left">
@@ -166,7 +166,10 @@
       </tbody>
     </table>
 
-    <div v-if="!products.loading && products.data.length" class="flex justify-between items-center mt-5">
+    <div
+      v-if="!products.loading && products.data.length"
+      class="flex justify-between items-center mt-5"
+    >
       <span> Showing from {{ products.from }} to {{ products.to }} </span>
 
       <nav

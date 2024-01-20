@@ -39,12 +39,10 @@
             >ID</TableHeaderCell
           >
           <TableHeaderCell
-            @click="sortOrders"
             class="border-b-2 p-2 text-left"
-            field="created_at"
             :sort-field="sortField"
             :sort-direction="sortDirection"
-            >Date</TableHeaderCell
+            >Customer</TableHeaderCell
           >
           <TableHeaderCell
             @click="sortOrders"
@@ -65,10 +63,10 @@
           <TableHeaderCell
             @click="sortOrders"
             class="border-b-2 p-2 text-left"
-            field="number_of_items"
+            field="created_at"
             :sort-field="sortField"
             :sort-direction="sortDirection"
-            >Items</TableHeaderCell
+            >Date</TableHeaderCell
           >
           <TableHeaderCell field="actions" class="border-b-2 p-2 text-left"
             >Actions</TableHeaderCell
@@ -88,77 +86,43 @@
       <tbody v-else>
         <tr v-for="(order, ind) in orders.data">
           <td class="border-b p-2">{{ order.id }}</td>
-          <td class="border-b p-2">{{ order.created_at }}</td>
+          <td class="border-b p-2">
+            {{ order.customer.first_name }} {{ order.customer.last_name }}
+          </td>
           <td class="border-b p-2">
             <span>{{ order.status }}</span>
           </td>
           <td
             class="border-b p-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
           >
-            {{ order.total_price }}
+            ${{ order.total_price }}
           </td>
-          <td class="border-b p-2">{{ order.number_of_items }}</td>
+          <td class="border-b p-2">{{ order.created_at }}</td>
           <td class="border-b p-2">
-            <Menu as="div" class="relative inline-block text-left">
-              <div>
-                <MenuButton
-                  class="inline-flex items-center justify-center rounded-full w-10 h-10 bg-black bg-opacity-0 text-sm font-medium text-white hover:bg-opacity-5 focus:bg-opacity-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-                >
-                  <EllipsisVerticalIcon
-                    class="h-5 w-5 text-indigo-500"
-                    aria-hidden="true"
-                  />
-                </MenuButton>
-              </div>
-
-              <transition
-                enter-active-class="transition duration-100 ease-out"
-                enter-from-class="transform scale-95 opacity-0"
-                enter-to-class="transform scale-100 opacity-100"
-                leave-active-class="transition duration-75 ease-in"
-                leave-from-class="transform scale-100 opacity-100"
-                leave-to-class="transform scale-95 opacity-0"
+            <router-link
+              :to="{ name: 'app.orders.view', params: { id: order.id } }"
+              class="w-8 h-8 rounded-full border-indigo-700 text-indigo-700 border flex justify-center items-center hover:text-white hover:bg-indigo-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-4 h-4"
               >
-                <MenuItems
-                  class="absolute z-10 right-0 mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                >
-                  <div class="px-1 py-1">
-                    <MenuItem v-slot="{ active }">
-                      <button
-                        :class="[
-                          active ? 'bg-indigo-600 text-white' : 'text-gray-900',
-                          'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                        ]"
-                        @click="viewOrder(order)"
-                      >
-                        <PencilIcon
-                          :active="active"
-                          class="mr-2 h-5 w-5 text-indigo-400"
-                          aria-hidden="true"
-                        />
-                        Edit
-                      </button>
-                    </MenuItem>
-                    <MenuItem v-slot="{ active }">
-                      <button
-                        :class="[
-                          active ? 'bg-indigo-600 text-white' : 'text-gray-900',
-                          'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                        ]"
-                        @click="deleteOrder(order)"
-                      >
-                        <TrashIcon
-                          :active="active"
-                          class="mr-2 h-5 w-5 text-indigo-400"
-                          aria-hidden="true"
-                        />
-                        Delete
-                      </button>
-                    </MenuItem>
-                  </div>
-                </MenuItems>
-              </transition>
-            </Menu>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                />
+              </svg>
+            </router-link>
           </td>
         </tr>
       </tbody>
@@ -200,8 +164,6 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
-import { PencilIcon, TrashIcon, EllipsisVerticalIcon } from "@heroicons/vue/24/outline";
 import store from "../../store";
 import Spinner from "../../components/core/Spinner.vue";
 import TableHeaderCell from "../../components/core/Table/TableHeaderCell.vue";
@@ -210,7 +172,7 @@ import { ORDERS_PER_PAGE } from "../../constants";
 const perPage = ref(ORDERS_PER_PAGE);
 const search = ref("");
 const orders = computed(() => store.state.orders);
-const sortField = ref("updated_at");
+const sortField = ref("created_at");
 const sortDirection = ref("desc");
 
 const emit = defineEmits(["clickView"]);

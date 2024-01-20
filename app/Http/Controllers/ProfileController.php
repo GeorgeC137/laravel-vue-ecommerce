@@ -23,9 +23,9 @@ class ProfileController extends Controller
 
         $billingAddress = $customer->billingAddress ?: new CustomerAddress(['type' => AddressType::Billing]);
 
-        // dd($customer, $shippingAddress->attributesToArray(), $billingAddress, $billingAddress->customer);
-
         $countries = Country::query()->orderBy('name')->get();
+
+        // dd($countries, $customer, $user, $shippingAddress, $billingAddress);
 
         return view('profile.view', compact('user', 'customer', 'shippingAddress', 'billingAddress', 'countries'));
     }
@@ -40,11 +40,7 @@ class ProfileController extends Controller
 
         $customer = $user->customer;
 
-        $customer->update([
-            'first_name' => $customerData['first_name'],
-            'last_name' => $customerData['last_name'],
-            'phone' => $customerData['phone'],
-        ]);
+        $customer->update($customerData);
 
         if ($customer->shippingAddress) {
             $customer->shippingAddress->update($shippingData);
@@ -61,10 +57,6 @@ class ProfileController extends Controller
             $billingData['type'] = AddressType::Billing;
             CustomerAddress::create($billingData);
         }
-
-        $user->update([
-            'email' => $customerData['email'],
-        ]);
 
         $request->session()->flash('flash_message', 'Profile Successfully Updated.');
 
