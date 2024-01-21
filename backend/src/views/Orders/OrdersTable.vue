@@ -90,7 +90,7 @@
             {{ order.customer.first_name }} {{ order.customer.last_name }}
           </td>
           <td class="border-b p-2">
-            <span>{{ order.status }}</span>
+            <OrderStatus :order="order" />
           </td>
           <td
             class="border-b p-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
@@ -168,6 +168,7 @@ import store from "../../store";
 import Spinner from "../../components/core/Spinner.vue";
 import TableHeaderCell from "../../components/core/Table/TableHeaderCell.vue";
 import { ORDERS_PER_PAGE } from "../../constants";
+import OrderStatus from "./OrderStatus.vue";
 
 const perPage = ref(ORDERS_PER_PAGE);
 const search = ref("");
