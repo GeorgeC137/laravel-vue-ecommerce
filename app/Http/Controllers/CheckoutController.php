@@ -9,7 +9,10 @@ use App\Models\OrderItem;
 use App\Enums\OrderStatus;
 use App\Http\Helpers\Cart;
 use App\Enums\PaymentStatus;
+use App\Mail\NewOrderEmail;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CheckoutController extends Controller
@@ -99,7 +102,7 @@ class CheckoutController extends Controller
         $user = $request->user();
 
         try {
-		    $session_id = $request->get('session_id');
+            $session_id = $request->get('session_id');
 
             $session = $stripe->checkout->sessions->retrieve($session_id);
 
@@ -220,5 +223,11 @@ class CheckoutController extends Controller
 
         $order->status = OrderStatus::Paid;
         $order->update();
+
+        $adminUsers = User::where('is_admin', 1)->get();
+
+        foreach ([...$adminUsers, $order->user] as $user) {
+            Mail::to($user)->send(new NewOrderEmail($order, (bool)$user->is_admin));
+        }
     }
 }

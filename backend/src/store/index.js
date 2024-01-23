@@ -27,6 +27,11 @@ const store = createStore({
             page: 1,
             data: [],
         },
+        toast: {
+            show: false,
+            message: '',
+            delay: 5000
+        },
         product: {
             data: {}
         }
@@ -170,6 +175,14 @@ const store = createStore({
         },
         setProduct: (state, product) => {
             state.product.data = product.data;
+        },
+        hideToast: (state) => {
+            state.toast.show = false;
+            state.toast.message = '';
+        },
+        showToast: (state, message) => {
+            state.toast.show = true;
+            state.toast.message = message;
         }
     },
     getters: {},

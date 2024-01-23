@@ -5,7 +5,7 @@ namespace App\Enums;
 enum OrderStatus: string
 {
     const Paid = 'paid';
-    const Completed = 'complete';
+    const Completed = 'completed';
     const Unpaid = 'unpaid';
     const Cancelled = 'cancelled';
     const Shipped = 'shipped';

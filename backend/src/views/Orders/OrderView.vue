@@ -155,7 +155,10 @@ function onStatusChange() {
   axiosClient
     .post(`/orders/change-status/${order.value.id}/${order.value.status}`)
     .then(({}) => {
-      console.log("Success");
+      store.commit(
+        "showToast",
+        `Order Status Successfully Updated into "${order.value.status}"`
+      );
     });
 }
 </script>

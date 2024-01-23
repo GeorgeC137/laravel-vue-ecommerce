@@ -20,12 +20,15 @@
   <div v-else class="flex items-center justify-center min-h-full bg-gray-200">
     <Spinner />
   </div>
+
+  <Toast />
 </template>
 
 <script setup>
 import Sidebar from "../components/Sidebar.vue";
 import Navbar from "../components/Navbar.vue";
 import Spinner from "./core/Spinner.vue";
+import Toast from "./core/Toast.vue";
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import store from "../store";
 import { useRouter } from "vue-router";
