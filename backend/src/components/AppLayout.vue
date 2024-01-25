@@ -38,7 +38,7 @@ const router = useRouter();
 const currentUser = computed(() => store.state.user.data);
 
 onMounted(() => {
-  store.dispatch("getUser");
+  store.dispatch("getCurrentUser");
   handleSideBarOpened();
   window.addEventListener("resize", handleSideBarOpened);
 });

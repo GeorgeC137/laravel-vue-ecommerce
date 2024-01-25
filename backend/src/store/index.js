@@ -17,6 +17,16 @@ const store = createStore({
             page: 1,
             data: [],
         },
+        users: {
+            loading: false,
+            links: [],
+            from: null,
+            to: null,
+            total: null,
+            limit: null,
+            page: 1,
+            data: [],
+        },
         orders: {
             loading: false,
             links: [],
@@ -34,7 +44,10 @@ const store = createStore({
         },
         product: {
             data: {}
-        }
+        },
+        adminUsers: {
+            data: {}
+        },
     },
     actions: {
         login({ commit }, user) {
@@ -50,10 +63,10 @@ const store = createStore({
                     commit('logout')
                 })
         },
-        getUser({ commit }) {
+        getCurrentUser({ commit }) {
             return axiosClient.get('/user')
                 .then((res) => {
-                    commit('getUser', res.data);
+                    commit('getCurrentUser', res.data);
                     return res;
                 })
         },
@@ -70,6 +83,21 @@ const store = createStore({
                 })
                 .catch(() => {
                     commit('setProductsLoading', false)
+                })
+        },
+        getUsers({ commit }, { url = null, search = '', perPage = 10, sort_field, sort_direction } = {}) {
+            url = url || '/users'
+            commit('setUsersLoading', true);
+            return axiosClient.get(url, {
+                    params: { search, per_page: perPage, sort_field, sort_direction }
+                })
+                .then((res) => {
+                    commit('setUsersLoading', false);
+                    commit('setUsers', res.data);
+                    return res;
+                })
+                .catch(() => {
+                    commit('setUsersLoading', false)
                 })
         },
         getOrders({ commit }, { url = null, search = '', perPage = 10, sort_field, sort_direction } = {}) {
@@ -103,6 +131,13 @@ const store = createStore({
                     return res;
                 })
         },
+        createUser({ commit }, user) {
+            return axiosClient.post('/users', user)
+                .then((res) => {
+                    commit('setAdminUsers', res.data)
+                    return res;
+                })
+        },
         updateProduct({ commit }, product) {
             const id = product.id
             if (product.image instanceof File) {
@@ -124,11 +159,24 @@ const store = createStore({
                     return res;
                 })
         },
+        updateUser({ commit }, user) {
+            return axiosClient.put(`/users/${user.id}`, user)
+                .then((res) => {
+                    commit('setAdminUsers', res.data)
+                    return res;
+                })
+        },
         deleteProduct({  }, id) {
             return axiosClient.delete(`/products/${id}`)
         },
+        deleteUser({  }, id) {
+            return axiosClient.delete(`/users/${id}`)
+        },
         getProduct({  }, id) {
             return axiosClient.get(`/products/${id}`)
+        },
+        getUser({  }, id) {
+            return axiosClient.get(`/users/${id}`)
         },
         getOrder({  }, id) {
             return axiosClient.get(`/orders/${id}`)
@@ -146,7 +194,7 @@ const store = createStore({
             sessionStorage.removeItem('TOKEN');
 
         },
-        getUser: (state, user) => {
+        getCurrentUser: (state, user) => {
             state.user.data = user;
         },
         setProducts: (state, products) => {
@@ -157,6 +205,15 @@ const store = createStore({
             state.products.page = products.meta.current_page
             state.products.limit = products.meta.per_page
             state.products.total = products.meta.total
+        },
+        setUsers: (state, users) => {
+            state.users.data = users.data
+            state.users.links = users.meta.links
+            state.users.from = users.meta.from
+            state.users.to = users.meta.to
+            state.users.page = users.meta.current_page
+            state.users.limit = users.meta.per_page
+            state.users.total = users.meta.total
         },
         setOrders: (state, orders) => {
             state.orders.data = orders.data
@@ -170,11 +227,17 @@ const store = createStore({
         setProductsLoading: (state, loading) => {
             state.products.loading = loading
         },
+        setUsersLoading: (state, loading) => {
+            state.users.loading = loading
+        },
         setOrdersLoading: (state, loading) => {
             state.orders.loading = loading
         },
         setProduct: (state, product) => {
             state.product.data = product.data;
+        },
+        setAdminUsers: (state, adminUsers) => {
+            state.adminUsers.data = adminUsers.data;
         },
         hideToast: (state) => {
             state.toast.show = false;

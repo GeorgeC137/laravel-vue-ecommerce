@@ -32,7 +32,15 @@ class AuthController extends Controller
             Auth::logout();
 
             return response([
-                'message' => 'You have no permission to authenticate as Admin'
+                'error' => 'You have no permission to authenticate as Admin'
+            ], 403);
+        }
+
+        if(!$user->email_verified_at) {
+            Auth::logout();
+
+            return response([
+                'error' => 'Please verify your email to continue'
             ], 403);
         }
 
