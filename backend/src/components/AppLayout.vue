@@ -39,6 +39,7 @@ const currentUser = computed(() => store.state.user.data);
 
 onMounted(() => {
   store.dispatch("getCurrentUser");
+  store.dispatch("getCountries");
   handleSideBarOpened();
   window.addEventListener("resize", handleSideBarOpened);
 });

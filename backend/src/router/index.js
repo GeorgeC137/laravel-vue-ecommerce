@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../views/Dashboard.vue';
 import Products from '../views/Products/Products.vue';
 import Users from '../views/Users/Users.vue';
+import Customers from '../views/Customers/Customers.vue';
 import Orders from '../views/Orders/Orders.vue';
 import OrderView from '../views/Orders/OrderView.vue';
 import Login from '../views/Login.vue';
@@ -32,6 +33,11 @@ const routes = [
                 path: 'users',
                 name: 'app.users',
                 component: Users
+            },
+            {
+                path: 'customers',
+                name: 'app.customers',
+                component: Customers
             },
             {
                 path: 'orders',

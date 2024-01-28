@@ -35,10 +35,20 @@
       class="flex items-center hover:bg-black/30 rounded p-2 transition-colors"
     >
       <span class="mr-2 text-gray-300">
-        <UserIcon class="w-5" />
+        <UsersIcon class="w-5" />
       </span>
 
       <span class="text-xs">Users</span>
+    </router-link>
+    <router-link
+      :to="{ name: 'app.customers' }"
+      class="flex items-center hover:bg-black/30 rounded p-2 transition-colors"
+    >
+      <span class="mr-2 text-gray-300">
+        <UserGroupIcon class="w-5" />
+      </span>
+
+      <span class="text-xs">Customers</span>
     </router-link>
     <router-link
       :to="{ name: 'app.dashboard' }"
@@ -56,7 +66,8 @@
 <script setup>
 import {
   HomeIcon,
-  UserIcon,
+  UsersIcon,
+  UserGroupIcon,
   ChartBarIcon,
   ViewColumnsIcon,
 } from "@heroicons/vue/24/outline";

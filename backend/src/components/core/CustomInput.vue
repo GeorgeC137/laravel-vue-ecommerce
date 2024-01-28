@@ -8,7 +8,20 @@
       >
         {{ prepend }}
       </span>
-      <template v-if="type === 'textarea'">
+      <template v-if="type === 'select'">
+        <select
+          :name="name"
+          :required="required"
+          :value="props.modelValue"
+          @change="emit('update:modelValue', $event.target.value)"
+          :class="inputClasses"
+        >
+          <option v-for="option in selectOptions" :value="option.key">
+            {{ option.text }}
+          </option>
+        </select>
+      </template>
+      <template v-else-if="type === 'textarea'">
         <textarea
           :name="name"
           :required="required"
@@ -28,6 +41,17 @@
           @input="emit('change', $event.target.files[0])"
           :class="inputClasses"
           :placeholder="label"
+        />
+      </template>
+      <template v-else-if="type === 'checkbox'">
+        <input
+          :id="id"
+          :checked="props.modelValue"
+          @change="emit('update:modelValue', $event.target.checked)"
+          :type="type"
+          :name="name"
+          :required="required"
+          class="block h-4 w-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
         />
       </template>
       <template v-else>
@@ -56,7 +80,7 @@
 import { computed } from "vue";
 
 const props = defineProps({
-  modelValue: [String, Number, File],
+  modelValue: [String, Number, File, Boolean],
   label: String,
   type: {
     type: String,
@@ -72,6 +96,14 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  selectOptions: Array,
+});
+
+const id = computed(() => {
+  if (props.id) {
+    return props.id;
+  }
+  return `id-${Math.floor(1000000 + Math.random() * 1000000)}`;
 });
 
 const inputClasses = computed(() => {

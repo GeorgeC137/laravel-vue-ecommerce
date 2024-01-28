@@ -16,9 +16,9 @@ class OrderResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $billing = $this->user->customer->billingAddress;
-        $shipping = $this->user->customer->shippingAddress;
         $customer = $this->user->customer;
+        $billing = $customer->billingAddress;
+        $shipping = $customer->shippingAddress;
 
         return [
             'id' => $this->id,

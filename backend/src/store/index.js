@@ -27,6 +27,16 @@ const store = createStore({
             page: 1,
             data: [],
         },
+        customers: {
+            loading: false,
+            links: [],
+            from: null,
+            to: null,
+            total: null,
+            limit: null,
+            page: 1,
+            data: [],
+        },
         orders: {
             loading: false,
             links: [],
@@ -48,6 +58,10 @@ const store = createStore({
         adminUsers: {
             data: {}
         },
+        customer: {
+            data: {}
+        },
+        countries: []
     },
     actions: {
         login({ commit }, user) {
@@ -68,6 +82,12 @@ const store = createStore({
                 .then((res) => {
                     commit('getCurrentUser', res.data);
                     return res;
+                })
+        },
+        getCountries({ commit }) {
+            return axiosClient.get('/countries')
+                .then(({ data }) => {
+                    commit('setCountries', data)
                 })
         },
         getProducts({ commit }, { url = null, search = '', perPage = 10, sort_field, sort_direction } = {}) {
@@ -98,6 +118,21 @@ const store = createStore({
                 })
                 .catch(() => {
                     commit('setUsersLoading', false)
+                })
+        },
+        getCustomers({ commit }, { url = null, search = '', perPage = 10, sort_field, sort_direction } = {}) {
+            url = url || '/customers'
+            commit('setCustomersLoading', true);
+            return axiosClient.get(url, {
+                    params: { search, per_page: perPage, sort_field, sort_direction }
+                })
+                .then((res) => {
+                    commit('setCustomersLoading', false);
+                    commit('setCustomers', res.data);
+                    return res;
+                })
+                .catch(() => {
+                    commit('setCustomersLoading', false)
                 })
         },
         getOrders({ commit }, { url = null, search = '', perPage = 10, sort_field, sort_direction } = {}) {
@@ -138,6 +173,13 @@ const store = createStore({
                     return res;
                 })
         },
+        createCustomer({ commit }, customer) {
+            return axiosClient.post('/customers', customer)
+                .then((res) => {
+                    commit('setCustomer', res.data)
+                    return res;
+                })
+        },
         updateProduct({ commit }, product) {
             const id = product.id
             if (product.image instanceof File) {
@@ -166,17 +208,30 @@ const store = createStore({
                     return res;
                 })
         },
+        updateCustomer({ commit }, customer) {
+            return axiosClient.put(`/customers/${customer.id}`, customer)
+                .then((res) => {
+                    commit('setCustomer', res.data)
+                    return res;
+                })
+        },
         deleteProduct({  }, id) {
             return axiosClient.delete(`/products/${id}`)
         },
         deleteUser({  }, id) {
             return axiosClient.delete(`/users/${id}`)
         },
+        deleteCustomer({  }, id) {
+            return axiosClient.delete(`/customers/${id}`)
+        },
         getProduct({  }, id) {
             return axiosClient.get(`/products/${id}`)
         },
         getUser({  }, id) {
             return axiosClient.get(`/users/${id}`)
+        },
+        getCustomer({  }, id) {
+            return axiosClient.get(`/customers/${id}`)
         },
         getOrder({  }, id) {
             return axiosClient.get(`/orders/${id}`)
@@ -215,6 +270,15 @@ const store = createStore({
             state.users.limit = users.meta.per_page
             state.users.total = users.meta.total
         },
+        setCustomers: (state, customers) => {
+            state.customers.data = customers.data
+            state.customers.links = customers.meta.links
+            state.customers.from = customers.meta.from
+            state.customers.to = customers.meta.to
+            state.customers.page = customers.meta.current_page
+            state.customers.limit = customers.meta.per_page
+            state.customers.total = customers.meta.total
+        },
         setOrders: (state, orders) => {
             state.orders.data = orders.data
             state.orders.links = orders.meta.links
@@ -230,6 +294,9 @@ const store = createStore({
         setUsersLoading: (state, loading) => {
             state.users.loading = loading
         },
+        setCustomersLoading: (state, loading) => {
+            state.customers.loading = loading
+        },
         setOrdersLoading: (state, loading) => {
             state.orders.loading = loading
         },
@@ -239,6 +306,9 @@ const store = createStore({
         setAdminUsers: (state, adminUsers) => {
             state.adminUsers.data = adminUsers.data;
         },
+        setCustomer: (state, customer) => {
+            state.customer.data = customer.data;
+        },
         hideToast: (state) => {
             state.toast.show = false;
             state.toast.message = '';
@@ -246,6 +316,9 @@ const store = createStore({
         showToast: (state, message) => {
             state.toast.show = true;
             state.toast.message = message;
+        },
+        setCountries: (state, countries) => {
+            state.countries = countries.data
         }
     },
     getters: {},
