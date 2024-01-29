@@ -1,0 +1,12 @@
+Dashboard
+
+#First Row:
+1. Number of Active Customers
+2. Number of Active Products
+3. Number of Paid Orders
+4. Total Income
+
+#Second Row
+1. Orders by Country
+2. Top 5 Selling Products
+3. Newly Registered Customers
