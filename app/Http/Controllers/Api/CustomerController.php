@@ -13,6 +13,7 @@ use App\Http\Requests\CustomerRequest;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\CustomerResource;
 use App\Http\Resources\CustomerListResource;
+use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
@@ -27,13 +28,20 @@ class CustomerController extends Controller
         $sortDirection = request('sort_direction', 'desc');
 
         $query = Customer::query()
-            ->where('first_name', 'like', "%{$search}%")
-            ->orWhere('last_name', 'like', "%{$search}%")
-            ->orWhere('phone', 'like', "%{$search}%")
-            ->orderBy($sortField, $sortDirection)
-            ->paginate($perPage);
+            ->orderBy("customers.$sortField", $sortDirection);
 
-        return CustomerListResource::collection($query);
+            if ($search) {
+                $query
+                ->join('users', 'customers.user_id', '=', 'users.id')
+                ->whereRaw("CONCAT(first_name, ' ', last_name) like ?", "%{$search}%")
+                ->orWhere('phone', 'like', "%{$search}%")
+                ->orWhere('status', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+            }
+
+            $paginator = $query->paginate($perPage);
+
+        return CustomerListResource::collection($paginator);
     }
 
     /**

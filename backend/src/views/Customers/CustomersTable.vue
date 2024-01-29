@@ -33,7 +33,7 @@
           <TableHeaderCell
             @click="sortCustomers"
             class="border-b-2 p-2 text-left"
-            field="id"
+            field="user_id"
             :sort-field="sortField"
             :sort-direction="sortDirection"
             >ID</TableHeaderCell
@@ -42,12 +42,11 @@
           @click="sortCustomers"
             class="border-b-2 p-2 text-left"
             :sort-field="sortField"
-            field="name"
+            field="first_name"
             :sort-direction="sortDirection"
             >Name</TableHeaderCell
           >
           <TableHeaderCell
-            @click="sortCustomers"
             class="border-b-2 p-2 text-left"
             field="email"
             :sort-field="sortField"
