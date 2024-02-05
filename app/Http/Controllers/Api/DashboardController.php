@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\AddressType;
-use App\Enums\CustomerStatus;
-use App\Enums\OrderStatus;
-use App\Http\Controllers\Controller;
-use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Customer;
+use App\Enums\AddressType;
+use App\Enums\OrderStatus;
 use Illuminate\Http\Request;
+use App\Enums\CustomerStatus;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\Dashboard\OrderResource;
 
 class DashboardController extends Controller
 {
@@ -39,8 +40,8 @@ class DashboardController extends Controller
     {
         $orders = Order::query()
             ->select(['c.name', DB::raw('count(orders.id) as count')])
-            ->join('users', 'created_by', '=', 'users.id')
-            ->join('customer_addresses AS a', 'users.id', '=', 'a.customer_id')
+            ->join('users AS u', 'created_by', '=', 'u.id')
+            ->join('customer_addresses AS a', 'u.id', '=', 'a.customer_id')
             ->join('countries AS c', 'a.country_code', '=', 'c.code')
             ->groupBy('c.name')
             ->where('status', OrderStatus::Paid)
@@ -59,5 +60,21 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
+    }
+
+    public function latestOrders()
+    {
+        return OrderResource::collection(
+            Order::query()
+                ->select(['o.id', 'o.total_price', 'o.created_at', 'c.first_name', 'c.last_name', DB::raw('count(oi.id) as items'), 'c.user_id'])
+                ->join('order_items AS oi', 'oi.order_id', '=', 'o.id')
+                ->join('customers AS c', 'c.user_id', '=', 'o.created_by')
+                ->from('orders AS o')
+                ->where('o.status', OrderStatus::Paid)
+                ->orderBy('o.created_at', 'desc')
+                ->limit(10)
+                ->groupBy(['o.id', 'o.total_price', 'o.created_at', 'c.first_name', 'c.last_name', 'c.user_id'])
+                ->get()
+        );
     }
 }

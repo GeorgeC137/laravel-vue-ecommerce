@@ -52,14 +52,39 @@
     <!-- Total Income  -->
   </div>
 
-  <div class="grid grid-cols-1 grid-rows-2 grid-flow-col md:grid-cols-3 gap-3">
-    <!-- Products  -->
+  <div
+    class="grid grid-cols-1 grid-rows-1 md:grid-rows-2 md:grid-flow-col md:grid-cols-3 gap-3"
+  >
+    <!-- Orders  -->
     <div
-      class="bg-white col-span-2 row-span-2 py-6 px-5 rounded-lg shadow flex flex-col items-center justify-center"
+      class="bg-white col-span-1 md:col-span-2 row-span-1 md:row-span-2 py-6 px-5 rounded-lg shadow"
     >
-      Products
+      <label class="font-semibold text-lg block mb-2" for="">Latest Orders</label>
+      <template v-if="!loading.latestOrders">
+        <div
+          v-for="order in latestOrders"
+          :key="order.id"
+          class="py-2 px-2 hover:bg-gray-50"
+        >
+          <p>
+            <router-link
+              :to="{ name: 'app.orders.view', params: { id: order.id } }"
+              class="text-indigo-700 font-semibold"
+            >
+              Order #{{ order.id }}
+            </router-link>
+            created {{ order.created_at }}. {{ order.items }} items
+          </p>
+          <p class="flex justify-between">
+            <span>{{ order.first_name }} {{ order.last_name }}</span>
+            <span>{{ $filters.currencyUSD(order.total_price) }}</span>
+          </p>
+        </div>
+      </template>
+
+      <Spinner v-else text="" class="" />
     </div>
-    <!-- Products  -->
+    <!-- Orders  -->
 
     <!-- Doughnut  -->
     <div
@@ -77,22 +102,26 @@
     <!-- Customers  -->
     <div class="bg-white py-6 px-5 rounded-lg shadow">
       <label class="font-semibold text-lg block mb-2" for="">Latest Customers</label>
-      <router-link
-        to="/"
-        v-for="customer in latestCustomers"
-        :key="customer.id"
-        class="flex mb-2"
-      >
-        <div
-          class="w-12 h-12 bg-gray-200 flex items-center justify-center rounded-full mr-2"
+      <template v-if="!loading.latestCustomers">
+        <router-link
+          :to="{ name: 'app.customers.view', params: { id: customer.id } }"
+          v-for="customer in latestCustomers"
+          :key="customer.id"
+          class="flex mb-2"
         >
-          <UserIcon class="w-5" />
-        </div>
-        <div>
-          <h3>{{ customer.first_name }} {{ customer.last_name }}</h3>
-          <p>{{ customer.email }}</p>
-        </div>
-      </router-link>
+          <div
+            class="w-12 h-12 bg-gray-200 flex items-center justify-center rounded-full mr-2"
+          >
+            <UserIcon class="w-5" />
+          </div>
+          <div>
+            <h3>{{ customer.first_name }} {{ customer.last_name }}</h3>
+            <p>{{ customer.email }}</p>
+          </div>
+        </router-link>
+      </template>
+
+      <Spinner v-else text="" class="" />
     </div>
     <!-- Customers  -->
   </div>
@@ -111,6 +140,7 @@ const paidOrders = ref(0);
 const totalIncome = ref(0);
 const ordersByCountry = ref([]);
 const latestCustomers = ref([]);
+const latestOrders = ref([]);
 const loading = ref({
   customersCount: true,
   productsCount: true,
@@ -118,6 +148,7 @@ const loading = ref({
   totalIncome: true,
   ordersByCountry: true,
   latestCustomers: true,
+  latestOrders: true,
 });
 
 axiosClient.get("/dashboard/customers-count").then(({ data }) => {
@@ -128,6 +159,11 @@ axiosClient.get("/dashboard/customers-count").then(({ data }) => {
 axiosClient.get("/dashboard/latest-customers").then(({ data: customers }) => {
   latestCustomers.value = customers;
   loading.value.latestCustomers = false;
+});
+
+axiosClient.get("/dashboard/latest-orders").then(({ data: orders }) => {
+  latestOrders.value = orders.data;
+  loading.value.latestOrders = false;
 });
 
 axiosClient.get("/dashboard/products-count").then(({ data }) => {
