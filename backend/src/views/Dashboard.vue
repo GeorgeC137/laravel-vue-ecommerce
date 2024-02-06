@@ -1,9 +1,20 @@
 <template>
-  <h1 class="mb-3 text-4xl">Dashboard</h1>
+  <div class="flex items-center justify-between mb-3">
+    <h1 class="text-3xl font-semibold">Dashboard</h1>
+    <div class="flex items-center">
+      <label class="mr-2">Change Date Period</label>
+      <CustomInput
+        v-model="chosenDate"
+        type="select"
+        @change="onDatePikerChange"
+        :select-options="dateOptions"
+      />
+    </div>
+  </div>
   <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
     <!-- Active Customers  -->
     <div
-      class="bg-white py-6 px-5 rounded-lg shadow flex flex-col items-center justify-center"
+      class="bg-white animate-fade-in-down py-6 px-5 rounded-lg shadow flex flex-col items-center justify-center"
     >
       <label class="font-semibold text-lg block mb-2" for="">Active Customers</label>
       <template v-if="!loading.customersCount">
@@ -16,7 +27,8 @@
 
     <!-- Active Products  -->
     <div
-      class="bg-white py-6 px-5 rounded-lg shadow flex flex-col items-center justify-center"
+      class="bg-white animate-fade-in-down py-6 px-5 rounded-lg shadow flex flex-col items-center justify-center"
+      style="animation-delay: 0.1s"
     >
       <label class="font-semibold text-lg block mb-2" for="">Active Products</label>
       <template v-if="!loading.productsCount">
@@ -29,7 +41,8 @@
 
     <!-- Paid Orders  -->
     <div
-      class="bg-white py-6 px-5 rounded-lg shadow flex flex-col items-center justify-center"
+      class="bg-white animate-fade-in-down py-6 px-5 rounded-lg shadow flex flex-col items-center justify-center"
+      style="animation-delay: 0.2s"
     >
       <label class="font-semibold text-lg block mb-2" for="">Paid Orders</label>
       <template v-if="!loading.paidOrders">
@@ -41,7 +54,10 @@
     <!-- Paid Orders  -->
 
     <!-- Total Income  -->
-    <div class="bg-white py-6 px-5 rounded-lg shadow flex flex-col items-center">
+    <div
+      class="bg-white animate-fade-in-down py-6 px-5 rounded-lg shadow flex flex-col items-center"
+      style="animation-delay: 0.3s"
+    >
       <label class="font-semibold text-lg block mb-2" for="">Total Income</label>
       <template v-if="!loading.totalIncome">
         <span class="text-3xl font-semibold">{{ totalIncome }}</span>
@@ -128,11 +144,12 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import axiosClient from "../axios";
 import Doughnut from "../components/core/Charts/Doughnut.vue";
 import Spinner from "../components/core/Spinner.vue";
 import { UserIcon } from "@heroicons/vue/24/outline";
+import CustomInput from "../components/core/CustomInput.vue";
 
 const customersCount = ref(0);
 const productsCount = ref(0);
@@ -151,54 +168,93 @@ const loading = ref({
   latestOrders: true,
 });
 
-axiosClient.get("/dashboard/customers-count").then(({ data }) => {
-  customersCount.value = data;
-  loading.value.customersCount = false;
-});
+const dateOptions = ref([
+  { key: "1d", text: "Last Day" },
+  { key: "1w", text: "Last Week" },
+  { key: "2w", text: "Last 2 Weeks" },
+  { key: "1m", text: "Last Month" },
+  { key: "3m", text: "Last 3 Months" },
+  { key: "6m", text: "Last 6 Months" },
+  { key: "all", text: "All Time " },
+]);
 
-axiosClient.get("/dashboard/latest-customers").then(({ data: customers }) => {
-  latestCustomers.value = customers;
-  loading.value.latestCustomers = false;
-});
+const chosenDate = ref("all");
 
-axiosClient.get("/dashboard/latest-orders").then(({ data: orders }) => {
-  latestOrders.value = orders.data;
-  loading.value.latestOrders = false;
-});
-
-axiosClient.get("/dashboard/products-count").then(({ data }) => {
-  productsCount.value = data;
-  loading.value.productsCount = false;
-});
-
-axiosClient.get("/dashboard/orders-count").then(({ data }) => {
-  paidOrders.value = data;
-  loading.value.paidOrders = false;
-});
-
-axiosClient.get("/dashboard/income-amount").then(({ data }) => {
-  totalIncome.value = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(data);
-  loading.value.totalIncome = false;
-});
-
-axiosClient.get("/dashboard/orders-by-country").then(({ data: countries }) => {
-  const chartData = {
-    labels: [],
-    datasets: [
-      {
-        backgroundColor: ["#41B883", "#E46651", "#00D8FF", "#DD1B16"],
-        data: [],
-      },
-    ],
+function updateDashboard() {
+  const d = chosenDate.value;
+  loading.value = {
+    customersCount: true,
+    productsCount: true,
+    paidOrders: true,
+    totalIncome: true,
+    ordersByCountry: true,
+    latestCustomers: true,
+    latestOrders: true,
   };
-  countries.forEach((c) => {
-    chartData.labels.push(c.name);
-    chartData.datasets[0].data.push(c.count);
+
+  axiosClient.get("/dashboard/customers-count", { params: { d } }).then(({ data }) => {
+    customersCount.value = data;
+    loading.value.customersCount = false;
   });
-  ordersByCountry.value = chartData;
-  loading.value.ordersByCountry = false;
+
+  axiosClient
+    .get("/dashboard/latest-customers", { params: { d } })
+    .then(({ data: customers }) => {
+      latestCustomers.value = customers;
+      loading.value.latestCustomers = false;
+    });
+
+  axiosClient
+    .get("/dashboard/latest-orders", { params: { d } })
+    .then(({ data: orders }) => {
+      latestOrders.value = orders.data;
+      loading.value.latestOrders = false;
+    });
+
+  axiosClient.get("/dashboard/products-count", { params: { d } }).then(({ data }) => {
+    productsCount.value = data;
+    loading.value.productsCount = false;
+  });
+
+  axiosClient.get("/dashboard/orders-count", { params: { d } }).then(({ data }) => {
+    paidOrders.value = data;
+    loading.value.paidOrders = false;
+  });
+
+  axiosClient.get("/dashboard/income-amount", { params: { d } }).then(({ data }) => {
+    totalIncome.value = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(data);
+    loading.value.totalIncome = false;
+  });
+
+  axiosClient
+    .get("/dashboard/orders-by-country", { params: { d } })
+    .then(({ data: countries }) => {
+      const chartData = {
+        labels: [],
+        datasets: [
+          {
+            backgroundColor: ["#41B883", "#E46651", "#00D8FF", "#DD1B16"],
+            data: [],
+          },
+        ],
+      };
+      countries.forEach((c) => {
+        chartData.labels.push(c.name);
+        chartData.datasets[0].data.push(c.count);
+      });
+      ordersByCountry.value = chartData;
+      loading.value.ordersByCountry = false;
+    });
+}
+
+function onDatePikerChange() {
+  updateDashboard();
+}
+
+onMounted(() => {
+  updateDashboard();
 });
 </script>

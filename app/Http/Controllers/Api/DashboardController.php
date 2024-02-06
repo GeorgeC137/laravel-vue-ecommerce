@@ -12,6 +12,7 @@ use App\Enums\CustomerStatus;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Dashboard\OrderResource;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -28,27 +29,48 @@ class DashboardController extends Controller
 
     public function paidOrders()
     {
-        return Order::where('status', OrderStatus::Paid)->count();
+        $fromDate = $this->getFromDate();
+
+        $query =  Order::query()->where('status', OrderStatus::Paid);
+
+        if ($fromDate) {
+            $query->where('created_at', '>', $fromDate);
+        }
+
+        return $query->count();
     }
 
     public function totalIncome()
     {
-        return Order::where('status', OrderStatus::Paid)->sum('total_price');
+        $fromDate = $this->getFromDate();
+
+        $query = Order::where('status', OrderStatus::Paid);
+
+        if ($fromDate) {
+            $query->where('created_at', '>', $fromDate);
+        }
+
+        return $query->sum('total_price');
     }
 
     public function ordersByCountry()
     {
-        $orders = Order::query()
+        $fromDate = $this->getFromDate();
+
+        $query = Order::query()
             ->select(['c.name', DB::raw('count(orders.id) as count')])
             ->join('users AS u', 'created_by', '=', 'u.id')
             ->join('customer_addresses AS a', 'u.id', '=', 'a.customer_id')
             ->join('countries AS c', 'a.country_code', '=', 'c.code')
             ->groupBy('c.name')
             ->where('status', OrderStatus::Paid)
-            ->where('a.type', AddressType::Billing)
-            ->get();
+            ->where('a.type', AddressType::Billing);
 
-        return $orders;
+        if ($fromDate) {
+            $query->where('orders.created_at', '>', $fromDate);
+        }
+
+        return $query->get();
     }
 
     public function latestCustomers()
@@ -76,5 +98,22 @@ class DashboardController extends Controller
                 ->groupBy(['o.id', 'o.total_price', 'o.created_at', 'c.first_name', 'c.last_name', 'c.user_id'])
                 ->get()
         );
+    }
+
+    private function getFromDate()
+    {
+        $request = request();
+        $paramDate = $request->get('d');
+
+        $array = [
+            '1d' => Carbon::now()->subDays(1),
+            '1w' => Carbon::now()->subDays(7),
+            '2w' => Carbon::now()->subDays(14),
+            '1m' => Carbon::now()->subDays(30),
+            '3m' => Carbon::now()->subDays(90),
+            '6m' => Carbon::now()->subDays(180),
+        ];
+
+        return $array[$paramDate] ?? null;
     }
 }
