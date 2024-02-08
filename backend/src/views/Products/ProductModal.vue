@@ -85,6 +85,12 @@
                     label="Price"
                     prepend="$ "
                   />
+                  <CustomInput
+                    type="checkbox"
+                    v-model="product.published"
+                    class="mb-2"
+                    label="Published"
+                  />
                 </div>
                 <footer class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                   <button
@@ -138,6 +144,7 @@ const product = ref({
   id: props.product.id,
   title: props.product.title,
   price: props.product.price,
+  published: props.product.published,
   image: props.product.image,
   description: props.product.description,
 });
@@ -154,6 +161,7 @@ onUpdated(() => {
     id: props.product.id,
     title: props.product.title,
     price: props.product.price,
+    published: props.product.published,
     image: props.product.image,
     description: props.product.description,
   };

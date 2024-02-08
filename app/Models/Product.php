@@ -18,6 +18,7 @@ class Product extends Model
         'title',
         'description',
         'price',
+        'published',
         'image',
         'quantity',
         'created_by',

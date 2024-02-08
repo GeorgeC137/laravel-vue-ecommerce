@@ -80,7 +80,7 @@
 import { computed } from "vue";
 
 const props = defineProps({
-  modelValue: [String, Number, File, Boolean],
+  modelValue: [String, Number, File],
   label: String,
   type: {
     type: String,
@@ -123,7 +123,7 @@ const inputClasses = computed(() => {
   return cls.join(" ");
 });
 
-const emit = defineEmits(["update:modelValue", "change"]);
+const emit = defineEmits(["update:modelValue", "change", "change"]);
 
 function onChange(value) {
   emit("update:modelValue", value);
