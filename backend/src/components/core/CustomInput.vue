@@ -123,7 +123,7 @@ const inputClasses = computed(() => {
   return cls.join(" ");
 });
 
-const emit = defineEmits(["update:modelValue", "change", "change"]);
+const emit = defineEmits(["update:modelValue", "change"]);
 
 function onChange(value) {
   emit("update:modelValue", value);

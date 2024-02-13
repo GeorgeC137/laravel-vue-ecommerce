@@ -51,7 +51,7 @@
       <span class="text-xs">Customers</span>
     </router-link>
     <router-link
-      :to="{ name: 'app.dashboard' }"
+      :to="{ name: 'reports.orders' }"
       class="flex items-center hover:bg-black/30 rounded p-2 transition-colors"
     >
       <span class="mr-2 text-gray-300">

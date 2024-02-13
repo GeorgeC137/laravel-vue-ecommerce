@@ -144,12 +144,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axiosClient from "../axios";
 import Doughnut from "../components/core/Charts/Doughnut.vue";
 import Spinner from "../components/core/Spinner.vue";
 import { UserIcon } from "@heroicons/vue/24/outline";
 import CustomInput from "../components/core/CustomInput.vue";
+import store from "../store";
 
 const customersCount = ref(0);
 const productsCount = ref(0);
@@ -168,15 +169,7 @@ const loading = ref({
   latestOrders: true,
 });
 
-const dateOptions = ref([
-  { key: "1d", text: "Last Day" },
-  { key: "1w", text: "Last Week" },
-  { key: "2w", text: "Last 2 Weeks" },
-  { key: "1m", text: "Last Month" },
-  { key: "3m", text: "Last 3 Months" },
-  { key: "6m", text: "Last 6 Months" },
-  { key: "all", text: "All Time " },
-]);
+const dateOptions = computed(() => store.state.dateOptions);
 
 const chosenDate = ref("all");
 

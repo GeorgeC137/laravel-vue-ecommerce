@@ -1,0 +1,3 @@
+#Reports:
+1. Number of orders per day. (BarChart)
+2. Number of new customers per day. (LineChart)
