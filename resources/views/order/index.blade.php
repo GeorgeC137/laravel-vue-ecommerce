@@ -28,7 +28,7 @@
                                     class=" text-white p-1 rounded {{ $order->isPaid() ? 'bg-emerald-500' : 'bg-gray-500' }}">{{ $order->status }}</small>
                             </td>
                             <td>${{ $order->total_price }}</td>
-                            <td class="whitespace-nowrap">{{ $order->items()->count() }} items(s)</td>
+                            <td class="whitespace-nowrap">{{ $order->items_count }} items(s)</td>
                             <td class="flex gap-3">
                                 @if (!$order->isPaid())
                                     <form action="{{ route('cart.checkout-order', $order) }}" method="POST">

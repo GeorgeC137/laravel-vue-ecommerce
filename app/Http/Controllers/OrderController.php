@@ -11,7 +11,10 @@ class OrderController extends Controller
     {
         $user = $request->user();
 
-        $orders = Order::query()->where(['created_by' => $user->id])->orderBy('created_at', 'desc')->paginate(10);
+        $orders = Order::withCount('items')
+            ->where(['created_by' => $user->id])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         return view('order.index', compact('orders'));
     }

@@ -21,6 +21,8 @@ class OrderController extends Controller
         $sortDirection = request('sort_direction', 'desc');
 
         $query = Order::query()
+            ->withCount('items')
+            ->with('user.customer')
             ->where('id', 'like', "%{$search}%")
             ->orWhere('status', 'like', "%{$search}%")
             ->orderBy($sortField, $sortDirection)
@@ -31,6 +33,7 @@ class OrderController extends Controller
 
     public function view(Order $order)
     {
+        $order->load('items.product');
         return new OrderResource($order);
     }
 

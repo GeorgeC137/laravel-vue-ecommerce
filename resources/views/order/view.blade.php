@@ -33,7 +33,7 @@
 
             <!-- Order Items -->
             <div>
-                @foreach ($order->items as $item)
+                @foreach ($order->items()->with('product')->get() as $item)
                     <!-- Product Item -->
                     <div class="flex gap-6">
                         <a href="{{ route('product.show', $item->product) }}"
