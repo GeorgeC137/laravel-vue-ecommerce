@@ -33,7 +33,7 @@
                 label="Country"
               />
               <CustomInput
-                v-if="!billingCountry.states"
+                v-if="billingCountry && !billingCountry.states"
                 v-model="customer.billingAddress.state"
                 label="State"
               />
@@ -69,7 +69,7 @@
                 label="Country"
               />
               <CustomInput
-                v-if="!shippingCountry.states"
+                v-if="shippingCountry && !shippingCountry.states"
                 v-model="customer.shippingAddress.state"
                 label="State"
               />

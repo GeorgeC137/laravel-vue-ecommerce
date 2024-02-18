@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Api;
 
+use Exception;
 use App\Models\Country;
 use App\Models\Customer;
 use App\Enums\AddressType;
-use App\Enums\CustomerStatus;
 use Illuminate\Http\Request;
+use App\Enums\CustomerStatus;
 use App\Models\CustomerAddress;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CustomerRequest;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\CustomerResource;
 use App\Http\Resources\CustomerListResource;
-use Exception;
-use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
@@ -88,6 +89,7 @@ class CustomerController extends Controller
             }
         } catch (Exception $e) {
             DB::rollBack();
+            Log::critical( __METHOD__ . ' method does not work. '. $e->getMessage());
             throw $e;
 
         }

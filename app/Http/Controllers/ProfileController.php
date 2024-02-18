@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\AddressType;
-use App\Http\Requests\PasswordUpdateRequest;
-use App\Http\Requests\ProfileRequest;
-use App\Models\Country;
-use App\Models\CustomerAddress;
 use Exception;
+use App\Models\Country;
+use App\Enums\AddressType;
 use Illuminate\Http\Request;
+use App\Models\CustomerAddress;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\ProfileRequest;
+use App\Http\Requests\PasswordUpdateRequest;
 
 class ProfileController extends Controller
 {
@@ -63,6 +64,7 @@ class ProfileController extends Controller
             }
         } catch (Exception $e) {
             DB::rollBack();
+            Log::critical( __METHOD__ . ' method does not work. '. $e->getMessage());
             throw $e;
         }
 
