@@ -7,6 +7,13 @@
             <a href="{{ route('login') }}" class="text-sm text-purple-700 hover:text-purple-600">login with existing
                 account</a>
         </p>
+
+        @if (session('error'))
+            <div class="bg-red-500 py-2 px-3 text-white mb-2 rounded">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <div class="mb-4">
             <x-text-input placeholder="Your name" :value="old('name')" type="text" name="name" />
 

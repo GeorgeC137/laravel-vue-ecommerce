@@ -11,7 +11,9 @@ use App\Http\Helpers\Cart;
 use App\Enums\PaymentStatus;
 use App\Mail\NewOrderEmail;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -58,34 +60,42 @@ class CheckoutController extends Controller
             'cancel_url' => route('checkout.failure', [], true),
         ]);
 
-        // Create Order
-        $orderData = [
-            'total_price' => $totalPrice,
-            'status' => OrderStatus::Unpaid,
-            'created_by' => $user->id,
-            'updated_by' => $user->id,
-        ];
+        DB::beginTransaction();
+        try {
+            // Create Order
+            $orderData = [
+                'total_price' => $totalPrice,
+                'status' => OrderStatus::Unpaid,
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ];
 
-        $order = Order::create($orderData);
+            $order = Order::create($orderData);
 
-        // Create OrderItems
-        foreach ($orderItems as $orderItem) {
-            $orderItem['order_id'] = $order->id;
-            OrderItem::create($orderItem);
+            // Create OrderItems
+            foreach ($orderItems as $orderItem) {
+                $orderItem['order_id'] = $order->id;
+                OrderItem::create($orderItem);
+            }
+
+            // Create Payment
+            $paymentData = [
+                'order_id' => $order->id,
+                'status' => PaymentStatus::Pending,
+                'amount' => $totalPrice,
+                'type' => 'cc',
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+                'session_id' => $checkout_session->id
+            ];
+
+            Payment::create($paymentData);
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
 
-        // Create Payment
-        $paymentData = [
-            'order_id' => $order->id,
-            'status' => PaymentStatus::Pending,
-            'amount' => $totalPrice,
-            'type' => 'cc',
-            'created_by' => $user->id,
-            'updated_by' => $user->id,
-            'session_id' => $checkout_session->id
-        ];
-
-        Payment::create($paymentData);
+        DB::commit();
 
         // dd($checkout_session->id);
 
@@ -216,13 +226,21 @@ class CheckoutController extends Controller
 
     private function updateOrderAndSession(Payment $payment)
     {
-        $payment->status = PaymentStatus::Paid;
-        $payment->update();
+        DB::beginTransaction();
+        try {
+            $payment->status = PaymentStatus::Paid;
+            $payment->update();
 
-        $order = $payment->order;
+            $order = $payment->order;
 
-        $order->status = OrderStatus::Paid;
-        $order->update();
+            $order->status = OrderStatus::Paid;
+            $order->update();
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        DB::commit();
 
         $adminUsers = User::where('is_admin', 1)->get();
 
