@@ -186,7 +186,7 @@ function deleteUser(user) {
     }
 
     store.dispatch("deleteUser", user.id).then(() => {
-        // TODO show Notification
+        store.commit('showToast', 'User has been successfully deleted');
         store.dispatch("getUsers");
     });
 }

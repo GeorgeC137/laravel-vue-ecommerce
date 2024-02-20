@@ -263,7 +263,7 @@ function deleteCustomer(customer) {
   }
 
   store.dispatch("deleteCustomer", customer.id).then(() => {
-    // TODO show Notification
+    store.commit('showToast', 'Customer has been successfully deleted');
     store.dispatch("getCustomers");
   });
 }

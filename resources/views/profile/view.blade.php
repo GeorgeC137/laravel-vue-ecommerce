@@ -7,6 +7,13 @@
             }
         }
     }" class="container p-5 mx-auto lg:w-2/3">
+
+        @if (session('error'))
+            <div class="bg-red-500 py-2 px-3 text-white mb-2 rounded">
+                {{ session('error') }}
+            </div>
+        @endif
+        
         <div class="grid grid-cols-1 md:grid-cols-3 items-start gap-6">
             <div class="bg-white rounded-lg shadow p-3 md:col-span-2">
                 <form x-data="{

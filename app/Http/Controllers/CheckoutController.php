@@ -24,6 +24,12 @@ class CheckoutController extends Controller
     {
         $user = $request->user();
 
+        $customer = $user->customer;
+
+        if (!$customer->shippingAddress || !$customer->billingAddress) {
+            return redirect()->route('profile')->with('error', 'Please provide your address details to proceed');
+        }
+
         $stripe = new \Stripe\StripeClient(getenv('STRIPE_SECRET_KEY'));
 
         list($products, $cartItems) = Cart::getCartItemsAndProducts();

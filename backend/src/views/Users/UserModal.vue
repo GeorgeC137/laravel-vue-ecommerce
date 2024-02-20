@@ -146,7 +146,7 @@ function onSubmit() {
     store.dispatch("updateUser", user.value).then((response) => {
       loading.value = false;
       if (response.status === 200) {
-        // TODO show notification
+        store.commit("showToast", "User has been successfully updated");
         store.dispatch("getUsers");
         closeModal();
       }
@@ -155,7 +155,7 @@ function onSubmit() {
     store.dispatch("createUser", user.value).then((response) => {
       loading.value = false;
       if (response.status === 201) {
-        // TODO show notification
+        store.commit("showToast", "User has been successfully created");
         store.dispatch("getUsers");
         closeModal();
       }
