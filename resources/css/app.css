@@ -38,17 +38,8 @@ body {
   background-color: #e5e7eb;
 }
 
-.wysiwyg-content h3,
-.wysiwyg-content h4 {
-    font-weight: 600;
-    margin-top: 1rem;
-}
-
-.wysiwyg-content table > tbody > tr > td{
-  padding: 0.25rem 0.125rem;
-}
-.wysiwyg-content table > tbody > tr > td:first-child {
-  font-weight: bold;
+.wysiwyg-content * {
+  all: revert;
 }
 
 .table>tbody>tr>td,

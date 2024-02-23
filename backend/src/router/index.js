@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../views/Dashboard.vue';
 import Products from '../views/Products/Products.vue';
+import ProductForm from '../views/Products/ProductForm.vue';
 import Users from '../views/Users/Users.vue';
 import Customers from '../views/Customers/Customers.vue';
 import Orders from '../views/Orders/Orders.vue';
@@ -33,6 +34,19 @@ const routes = [
                 path: 'products',
                 name: 'app.products',
                 component: Products
+            },
+            {
+                path: 'products/create',
+                name: 'app.products.create',
+                component: ProductForm
+            },
+            {
+                path: 'products/:id',
+                name: 'app.products.edit',
+                component: ProductForm,
+                props: {
+                    id: (value) => /^\d+$/.test(value)
+                }
             },
             {
                 path: 'users',

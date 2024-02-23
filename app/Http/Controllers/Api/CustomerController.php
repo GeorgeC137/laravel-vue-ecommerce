@@ -78,8 +78,6 @@ class CustomerController extends Controller
                 CustomerAddress::create($shippingData);
             }
 
-            throw new Exception('DB Transactions test');
-
             if ($customer->billingAddress) {
                 $customer->billingAddress->update($billingData);
             } else {

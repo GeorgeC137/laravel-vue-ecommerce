@@ -82,7 +82,7 @@
                 </button>
                 <div class="mb-6" x-data="{ expanded: false }">
                     <div x-show="expanded" x-collapse.min.120px class="text-gray-500 wysiwyg-content">
-                        {{ $product->description }}
+                        {!! $product->description !!}
                     </div>
                     <p class="text-right">
                         <a @click="expanded = !expanded" href="javascript:void(0)"
