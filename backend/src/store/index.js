@@ -165,6 +165,7 @@ const store = createStore({
                 form.append('title', product.title);
                 form.append('image', product.image);
                 form.append('price', product.price);
+                form.append('quantity', product.quantity);
                 form.append('published', product.published ? 1 : 0);
                 form.append('description', product.description);
                 product = form;
@@ -198,6 +199,7 @@ const store = createStore({
                 form.append('title', product.title);
                 form.append('image', product.image);
                 form.append('price', product.price);
+                form.append('quantity', product.quantity);
                 form.append('published', product.published ? 1 : 0);
                 form.append('description', product.description);
                 form.append('_method', 'PUT');

@@ -32,6 +32,12 @@
           prepend="$ "
         />
         <CustomInput
+          type="number"
+          v-model="product.quantity"
+          class="mb-2"
+          label="Quantity"
+        />
+        <CustomInput
           type="checkbox"
           v-model="product.published"
           class="mb-2"
@@ -82,6 +88,7 @@ const product = ref({
   id: null,
   title: null,
   price: null,
+  quantity: null,
   published: null,
   image: null,
   description: "",
@@ -99,11 +106,12 @@ onMounted(() => {
 
 function onSubmit($event, close = false) {
   loading.value = true;
+  product.value.quantity = product.value.quantity || null;
   if (product.value.id) {
     store.dispatch("updateProduct", product.value).then((response) => {
       loading.value = false;
       if (response.status === 200) {
-        store.commit("showToast", "Product created successfully");
+        store.commit("showToast", "Product updated successfully");
         store.dispatch("getProducts");
         if (close) {
           router.push({ name: "app.products" });
@@ -114,7 +122,7 @@ function onSubmit($event, close = false) {
     store.dispatch("createProduct", product.value).then((response) => {
       loading.value = false;
       if (response.status === 201) {
-        store.commit("showToast", "Product updated successfully");
+        store.commit("showToast", "Product created successfully");
         store.dispatch("getProducts");
         if (close) {
           router.push({ name: "app.products" });

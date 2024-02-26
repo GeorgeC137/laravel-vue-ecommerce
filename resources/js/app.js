@@ -18,13 +18,15 @@ document.addEventListener("alpine:init", () => {
         interval: null,
         timeout: null,
         message: null,
+        type: null,
         close() {
             this.visible = false;
             clearInterval(this.interval);
         },
-        show(message) {
+        show(message, type) {
             this.visible = true;
             this.message = message;
+            this.type = type;
 
             if (this.interval) {
                 clearInterval(this.interval);
@@ -65,7 +67,10 @@ document.addEventListener("alpine:init", () => {
                         });
                     })
                     .catch((response) => {
-                        console.log(response);
+                        this.$dispatch('notify', {
+                            message: response.message || 'Server Error. Please try again',
+                            type: 'error'
+                        });
                     })
             },
             removeItemFromCart() {
@@ -84,6 +89,12 @@ document.addEventListener("alpine:init", () => {
                         this.$dispatch('cart-change', { count: result.count });
                         this.$dispatch('notify', {
                             message: 'The item quantity was successfully updated'
+                        });
+                    })
+                    .catch((response) => {
+                        this.$dispatch('notify', {
+                            message: response.message || 'Server Error. Please try again',
+                            type: 'error'
                         });
                     })
             },

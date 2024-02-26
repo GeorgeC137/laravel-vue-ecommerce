@@ -1,6 +1,13 @@
 <x-app-layout>
     <div class="container mx-auto p-5 lg:w-2/3">
         <h1 class="text-3xl font-bold mb-2">My Cart Items</h1>
+
+        @if (session('error'))
+            <div class="bg-red-500 py-2 px-3 text-white mb-2 rounded">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <div x-data="{
             cartItems: {{ json_encode(
                 $products->map(

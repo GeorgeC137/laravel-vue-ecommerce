@@ -29,11 +29,48 @@ class CartController extends Controller
 
         $user = $request->user();
 
+        $totalQuantity = 0;
+
+        if($user) {
+            $cartItem = CartItem::where(['user_id' => $user->id, 'product_id' => $product->id])->first();
+
+            if ($cartItem) {
+                $totalQuantity = $cartItem->quantity + $quantity;
+            } else {
+                $totalQuantity = $quantity;
+            }
+        } else {
+            $cartItems = json_decode($request->cookie('cart_items', '[]'), true);
+            $productFound = false;
+
+            foreach ($cartItems as &$item) {
+                if ($item['product_id'] === $product->id) {
+                    $totalQuantity = $item['quantity'] + $quantity;
+                    $productFound = true;
+                    break;
+                }
+            }
+
+            if (!$productFound) {
+                $totalQuantity = $quantity;
+            }
+        }
+
+        if ($product->quantity !== null && $product->quantity < $totalQuantity) {
+            return response([
+                'message' => match ($product->quantity) {
+                    0 => 'The product is out of stock',
+                    1 => 'There is only one item left',
+                    default => 'There are only ' . $product->quantity . ' items left'
+                }
+            ], 422);
+        }
+
         if ($user) {
             $cartItem = CartItem::where(['user_id' => $user->id, 'product_id' => $product->id])->first();
 
             if ($cartItem) {
-                $cartItem->quantity = +$quantity;
+                $cartItem->quantity += $quantity;
                 $cartItem->update();
             } else {
                 $data = [
@@ -114,6 +151,16 @@ class CartController extends Controller
         $quantity = $request->post('quantity');
 
         $user = $request->user();
+
+        if ($product->quantity !== null && $product->quantity < $quantity) {
+            return response([
+                'message' => match ($product->quantity) {
+                    0 => 'The product is out of stock',
+                    1 => 'There is only one item left',
+                    default => 'There are only ' . $product->quantity . ' items left'
+                }
+            ], 422);
+        }
 
         if ($user) {
             CartItem::where(['user_id' => $user->id, 'product_id' => $product->id])->update(['quantity' => $quantity]);

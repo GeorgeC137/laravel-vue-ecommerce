@@ -228,9 +228,8 @@ onMounted(() => {
 
 function onSubmit() {
   loading.value = true;
+  customer.value.status = !!customer.value.status;
   if (customer.value.id) {
-    console.log(customer.value.status);
-    customer.value.status = !!customer.value.status;
     store
       .dispatch("updateCustomer", customer.value)
       .then((response) => {

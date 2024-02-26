@@ -3,6 +3,7 @@
         'id' => $product->id,
         'title' => $product->title,
         'price' => $product->price,
+        'quantity' => $product->quantity,
         'image' => $product->image,
         'addToCartUrl' => route('cart.add', $product->slug),
     ]) }})" class="container mx-auto">
@@ -64,14 +65,20 @@
                     {{ $product->title }}
                 </h1>
                 <div class="text-xl font-bold mb-6">${{ $product->price }}</div>
+
+                @if ($product->quantity <= 0)
+                    <div class="bg-red-600 py-2 text-white rounded mb-3 px-3">The product is out of stock</div>
+                @endif
+
                 <div class="flex items-center justify-between mb-5">
                     <label for="quantity" class="block font-bold mr-4">
                         Quantity
                     </label>
-                    <input type="number"  min="1" name="quantity" x-ref="quantityEl" value="1"
+                    <input type="number" min="1" name="quantity" x-ref="quantityEl" value="1"
                         class="w-32 focus:border-purple-500 focus:outline-none rounded" />
                 </div>
-                <button @click="addToCart($refs.quantityEl.value)"
+                <button @click="addToCart($refs.quantityEl.value)" :disabled="product.quantity <= 0"
+                    :class="product.quantity <= 0 ? 'cursor-not-allowed' : 'cursor-pointer'"
                     class="btn-primary py-4 text-lg flex justify-center min-w-0 w-full mb-6">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2">

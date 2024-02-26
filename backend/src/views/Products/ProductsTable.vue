@@ -63,6 +63,14 @@
           <TableHeaderCell
             @click="sortProducts"
             class="border-b-2 p-2 text-left"
+            field="quantity"
+            :sort-field="sortField"
+            :sort-direction="sortDirection"
+            >Quantity</TableHeaderCell
+          >
+          <TableHeaderCell
+            @click="sortProducts"
+            class="border-b-2 p-2 text-left"
             field="updated_at"
             :sort-field="sortField"
             :sort-direction="sortDirection"
@@ -99,6 +107,7 @@
             {{ product.title }}
           </td>
           <td class="border-b p-2">${{ product.price }}</td>
+          <td class="border-b p-2">{{ product.quantity }}</td>
           <td class="border-b p-2">{{ product.updated_at }}</td>
           <td class="border-b p-2">
             <Menu as="div" class="relative inline-block text-left">

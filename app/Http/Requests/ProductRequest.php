@@ -25,6 +25,7 @@ class ProductRequest extends FormRequest
             'title' => 'required|max:2000',
             'image' => 'nullable|image',
             'price' => 'required|numeric',
+            'quantity' => 'nullable|numeric',
             'description' => 'nullable|string',
             'published' => 'required|boolean',
         ];
