@@ -9,6 +9,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderListResource;
 use App\Http\Resources\OrderResource;
 use App\Mail\OrderUpdateEmail;
+use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
@@ -44,10 +46,29 @@ class OrderController extends Controller
 
     public function changeStatus(Order $order, $status)
     {
-        $order->status = $status;
-        $order->save();
+        DB::beginTransaction();
 
-        Mail::to($order->user)->send(new OrderUpdateEmail($order));
+        try {
+            $order->status = $status;
+            $order->save();
+
+            if ($status === OrderStatus::Cancelled) {
+                foreach ($order->items as $item) {
+                    $product = $item->product;
+                    if ($product && $product->quantity !== null) {
+                        $product->quantity += $item->quantity;
+                        $product->save();
+                    }
+                }
+            }
+
+            Mail::to($order->user)->send(new OrderUpdateEmail($order));
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        DB::commit();
 
         return response('', 200);
     }
