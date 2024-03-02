@@ -9,40 +9,43 @@
       v-if="loading"
       class="absolute top-0 left-0 bg-white right-0 bottom-0 flex items-center justify-center z-50"
     />
-    <form @submit.prevent="onSubmit">
-      <div class="pb-4 pt-5 px-4">
-        <CustomInput class="mb-2" v-model="product.title" label="Product Title" />
-        <CustomInput
-          type="file"
-          class="mb-2"
-          label="Product Image"
-          @change="(file) => (product.image = file)"
-        />
-        <CustomInput
-          type="richtext"
-          v-model="product.description"
-          class="mb-2"
-          label="Description"
-        />
-        <CustomInput
-          type="number"
-          v-model="product.price"
-          class="mb-2"
-          label="Price"
-          prepend="$ "
-        />
-        <CustomInput
-          type="number"
-          v-model="product.quantity"
-          class="mb-2"
-          label="Quantity"
-        />
-        <CustomInput
-          type="checkbox"
-          v-model="product.published"
-          class="mb-2"
-          label="Published"
-        />
+    <form v-else @submit.prevent="onSubmit">
+      <div class="grid grid-cols-3">
+        <div class="col-span-2 pb-4 pt-5 px-4">
+          <CustomInput class="mb-2" v-model="product.title" label="Product Title" />
+          <CustomInput
+            type="richtext"
+            v-model="product.description"
+            class="mb-2"
+            label="Description"
+          />
+          <CustomInput
+            type="number"
+            v-model="product.price"
+            class="mb-2"
+            label="Price"
+            prepend="$ "
+          />
+          <CustomInput
+            type="number"
+            v-model="product.quantity"
+            class="mb-2"
+            label="Quantity"
+          />
+          <CustomInput
+            type="checkbox"
+            v-model="product.published"
+            class="mb-2"
+            label="Published"
+          />
+        </div>
+        <div class="col-span-1 pb-4 pt-5 px-4">
+          <ImagePreview
+            v-model="product.images"
+            v-model:deleted-images="product.deleted_images"
+            :images="product.images"
+          />
+        </div>
       </div>
       <footer
         class="bg-gray-50 px-4 rounded-b-lg py-3 sm:px-6 sm:flex sm:flex-row-reverse"
@@ -77,6 +80,7 @@
 import { onMounted, ref } from "vue";
 import CustomInput from "../../components/core/CustomInput.vue";
 import Spinner from "../../components/core/Spinner.vue";
+import ImagePreview from "../../components/ImagePreview.vue";
 import store from "../../store";
 import { useRoute, useRouter } from "vue-router";
 
@@ -90,7 +94,8 @@ const product = ref({
   price: null,
   quantity: null,
   published: null,
-  image: null,
+  images: [],
+  deleted_images: [],
   description: "",
 });
 

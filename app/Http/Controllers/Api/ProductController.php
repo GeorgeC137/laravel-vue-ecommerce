@@ -12,6 +12,7 @@ use App\Http\Requests\ProductRequest;
 use App\Http\Resources\ProductResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\ProductListResource;
+use App\Models\ProductImage;
 
 class ProductController extends Controller
 {
@@ -43,16 +44,11 @@ class ProductController extends Controller
         $validatedData['created_by'] = $request->user()->id;
         $validatedData['updated_by'] = $request->user()->id;
 
-        $image = $validatedData['image'] ?? null;
-
-        if ($image) {
-            $relativePath = $this->saveImage($image);
-            $validatedData['image'] = URL::to(Storage::url($relativePath));
-            $validatedData['image_mime'] = $image->getClientMimeType();
-            $validatedData['image_size'] = $image->getSize();
-        }
+        $images = $validatedData['images'] ?? [];
 
         $product = Product::create($validatedData);
+
+        $this->saveImages($images, $product);
 
         return new ProductResource($product);
     }
@@ -74,18 +70,13 @@ class ProductController extends Controller
 
         $validatedData['updated_by'] = $request->user()->id;
 
-        $image = $validatedData['image'] ?? null;
+        $images = $validatedData['images'] ?? [];
+        $deletedImages = $validatedData['deleted_images'] ?? [];
 
-        if ($image) {
-            $relativePath = $this->saveImage($image);
-            $validatedData['image'] = URL::to(Storage::url($relativePath));
-            $validatedData['image_mime'] = $image->getClientMimeType();
-            $validatedData['image_size'] = $image->getSize();
-        }
+        $this->saveImages($images, $product);
 
-        // Delete old image if exists
-        if ($product->image) {
-            Storage::deleteDirectory('/public/' . dirname($product->image));
+        if (count($deletedImages) > 0) {
+            $this->deleteImages($deletedImages, $product);
         }
 
         $product->update($validatedData);
@@ -103,18 +94,46 @@ class ProductController extends Controller
         return response()->noContent();
     }
 
-    private function saveImage(UploadedFile $image)
+    private function saveImages($images, Product $product)
     {
-        $path = 'images/' . Str::random();
+        foreach ($images as $i => $image) {
+            $path = 'images/' . Str::random();
 
-        if (!Storage::exists($path)) {
-            Storage::makeDirectory($path, 0755, true);
+            if (!Storage::exists($path)) {
+                Storage::makeDirectory($path, 0755, true);
+            }
+
+            if (!Storage::putFileAs('public/' . $path, $image, $image->getClientOriginalName())) {
+                throw new Exception("Unable to save file \"{$image->getClientOriginalName()}\"");
+            }
+
+            $relativePath = $path . '/' . $image->getClientOriginalName();
+
+            ProductImage::create([
+                'product_id' => $product->id,
+                'url' => URL::to(Storage::url($relativePath)),
+                'path' => $relativePath,
+                'mime' => $image->getClientMimeType(),
+                'size' => $image->getSize(),
+                'position' => $i + 1,
+            ]);
         }
+    }
 
-        if (!Storage::putFileAs('public/' . $path, $image, $image->getClientOriginalName())) {
-            throw new Exception("Unable to save file \"{$image->getClientOriginalName()}\"");
+    private function deleteImages($imageIds, Product $product)
+    {
+        $images = ProductImage::query()
+            ->where('product_id', $product->id)
+            ->whereIn('id', $imageIds)
+            ->get();
+
+        foreach ($images as $image) {
+            // Delete old image if it exists
+            if ($image->path) {
+                Storage::deleteDirectory('/public/' . dirname($image->path));
+            }
+
+            $image->delete();
         }
-
-        return $path . '/' . $image->getClientOriginalName();
     }
 }

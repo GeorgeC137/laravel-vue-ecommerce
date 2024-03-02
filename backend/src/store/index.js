@@ -160,9 +160,10 @@ const store = createStore({
                 })
         },
         createProduct({ commit }, product) {
-            if (product.image instanceof File) {
+            if (product.images && product.images.length) {
                 const form = new FormData();
                 form.append('title', product.title);
+                product.images.forEach((im) => form.append('images[]', im));
                 form.append('image', product.image);
                 form.append('price', product.price);
                 form.append('quantity', product.quantity);
@@ -193,11 +194,14 @@ const store = createStore({
         },
         updateProduct({ commit }, product) {
             const id = product.id
-            if (product.image instanceof File) {
+            if (product.images && product.images.length) {
                 const form = new FormData();
                 form.append('id', product.id);
                 form.append('title', product.title);
-                form.append('image', product.image);
+                product.images.forEach((im) => form.append('images[]', im));
+                if (product.deleted_images) {
+                    product.deleted_images.forEach((id) => form.append('deleted_images[]', id))
+                }
                 form.append('price', product.price);
                 form.append('quantity', product.quantity);
                 form.append('published', product.published ? 1 : 0);

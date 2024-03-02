@@ -4,13 +4,13 @@
         'title' => $product->title,
         'price' => $product->price,
         'quantity' => $product->quantity,
-        'image' => $product->image,
+        'image' => $product->image ?: '/img/no-image.jpg',
         'addToCartUrl' => route('cart.add', $product->slug),
     ]) }})" class="container mx-auto">
         <div class="grid gap-6 grid-cols-1 lg:grid-cols-5">
             <div class="lg:col-span-3">
                 <div x-data="{
-                    images: ['{{ $product->image }}'],
+                    images: ['{{ $product->image ?: '/img/no-image.jpg' }}'],
                     activeImage: null,
                     prev() {
                         let index = this.images.indexOf(this.activeImage);

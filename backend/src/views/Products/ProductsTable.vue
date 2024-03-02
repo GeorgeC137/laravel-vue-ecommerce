@@ -96,9 +96,16 @@
           <td class="border-b p-2">{{ product.id }}</td>
           <td class="border-b p-2">
             <img
-              :src="product.image_url ? product.image_url : 'https://picsum.photos/200'"
+              v-if="product.image_url"
+              :src="product.image_url"
               :alt="product.title"
-              class="w-6"
+              class="w-16 h-16 object-cover"
+            />
+            <img
+              v-else
+              src="../../assets/no-image.jpg"
+              :alt="product.title"
+              class="w-16 h-16 object-cover"
             />
           </td>
           <td

@@ -21,15 +21,15 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained('products');
             $table->string('path', 255);
             $table->string('url', 255);
-            $table->string('mime', 55)->nullable();
-            $table->integer('size')->nullable();
+            $table->string('mime', 55);
+            $table->integer('size');
             $table->integer('position');
             $table->timestamps();
         });
 
         DB::table('products')
             ->chunkById(100, function (Collection $products) {
-                $products = $products->map(function ($p) {
+                $products = $products->filter(fn($p) => (bool)$p->image && $p->image_mime !== null)->map(function ($p) {
                     return [
                         'product_id' => $p->id,
                         'path' => '',
