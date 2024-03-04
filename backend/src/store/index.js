@@ -168,7 +168,7 @@ const store = createStore({
                 form.append('price', product.price);
                 form.append('quantity', product.quantity);
                 form.append('published', product.published ? 1 : 0);
-                form.append('description', product.description);
+                form.append('description', product.description || '');
                 product = form;
             }
 
@@ -198,14 +198,17 @@ const store = createStore({
                 const form = new FormData();
                 form.append('id', product.id);
                 form.append('title', product.title);
-                product.images.forEach((im) => form.append('images[]', im));
+                product.images.forEach((im) => form.append(`images[${im.id}]`, im));
                 if (product.deleted_images) {
                     product.deleted_images.forEach((id) => form.append('deleted_images[]', id))
+                }
+                for (let id in product.image_positions) {
+                    form.append(`image_positions[${id}]`, product.image_positions[id])
                 }
                 form.append('price', product.price);
                 form.append('quantity', product.quantity);
                 form.append('published', product.published ? 1 : 0);
-                form.append('description', product.description);
+                form.append('description', product.description || '');
                 form.append('_method', 'PUT');
                 product = form;
             } else {

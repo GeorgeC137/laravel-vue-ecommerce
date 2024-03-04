@@ -10,7 +10,7 @@
         <div class="grid gap-6 grid-cols-1 lg:grid-cols-5">
             <div class="lg:col-span-3">
                 <div x-data="{
-                    images: ['{{ $product->image ?: '/img/no-image.jpg' }}'],
+                    images: {{ $product->images->map(fn($im) => $im->url) }},
                     activeImage: null,
                     prev() {
                         let index = this.images.indexOf(this.activeImage);

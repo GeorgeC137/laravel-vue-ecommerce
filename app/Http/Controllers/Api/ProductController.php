@@ -45,10 +45,11 @@ class ProductController extends Controller
         $validatedData['updated_by'] = $request->user()->id;
 
         $images = $validatedData['images'] ?? [];
+        $imagePositions = $validatedData['image_positions'] ?? [];
 
         $product = Product::create($validatedData);
 
-        $this->saveImages($images, $product);
+        $this->saveImages($images, $imagePositions, $product);
 
         return new ProductResource($product);
     }
@@ -72,8 +73,9 @@ class ProductController extends Controller
 
         $images = $validatedData['images'] ?? [];
         $deletedImages = $validatedData['deleted_images'] ?? [];
+        $imagePositions = $validatedData['image_positions'] ?? [];
 
-        $this->saveImages($images, $product);
+        $this->saveImages($images, $imagePositions, $product);
 
         if (count($deletedImages) > 0) {
             $this->deleteImages($deletedImages, $product);
@@ -94,20 +96,28 @@ class ProductController extends Controller
         return response()->noContent();
     }
 
-    private function saveImages($images, Product $product)
+    private function saveImages($images, $positions, Product $product)
     {
-        foreach ($images as $i => $image) {
+        foreach ($positions as $id => $position) {
+            ProductImage::query()
+                ->where('id', $id)
+                ->update(['position' => $position]);
+        }
+
+        foreach ($images as $id => $image) {
             $path = 'images/' . Str::random();
 
             if (!Storage::exists($path)) {
                 Storage::makeDirectory($path, 0755, true);
             }
 
-            if (!Storage::putFileAs('public/' . $path, $image, $image->getClientOriginalName())) {
+            $name = Str::random() . '.' . $image->getClientOriginalExtension();
+
+            if (!Storage::putFileAs('public/' . $path, $image, $name)) {
                 throw new Exception("Unable to save file \"{$image->getClientOriginalName()}\"");
             }
 
-            $relativePath = $path . '/' . $image->getClientOriginalName();
+            $relativePath = $path . '/' . $name;
 
             ProductImage::create([
                 'product_id' => $product->id,
@@ -115,7 +125,7 @@ class ProductController extends Controller
                 'path' => $relativePath,
                 'mime' => $image->getClientMimeType(),
                 'size' => $image->getSize(),
-                'position' => $i + 1,
+                'position' => $positions[$id] ?? $id + 1,
             ]);
         }
     }

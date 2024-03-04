@@ -42,6 +42,7 @@
         <div class="col-span-1 pb-4 pt-5 px-4">
           <ImagePreview
             v-model="product.images"
+            v-model:image-positions="product.image_positions"
             v-model:deleted-images="product.deleted_images"
             :images="product.images"
           />
@@ -96,6 +97,7 @@ const product = ref({
   published: null,
   images: [],
   deleted_images: [],
+  image_positions: {},
   description: "",
 });
 
@@ -116,6 +118,7 @@ function onSubmit($event, close = false) {
     store.dispatch("updateProduct", product.value).then((response) => {
       loading.value = false;
       if (response.status === 200) {
+        product.value = response.data;
         store.commit("showToast", "Product updated successfully");
         store.dispatch("getProducts");
         if (close) {
@@ -127,6 +130,7 @@ function onSubmit($event, close = false) {
     store.dispatch("createProduct", product.value).then((response) => {
       loading.value = false;
       if (response.status === 201) {
+        product.value = response.data;
         store.commit("showToast", "Product created successfully");
         store.dispatch("getProducts");
         if (close) {
