@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../views/Dashboard.vue';
 import Products from '../views/Products/Products.vue';
+import Categories from '../views/Categories/Categories.vue';
 import ProductForm from '../views/Products/ProductForm.vue';
 import Users from '../views/Users/Users.vue';
 import Customers from '../views/Customers/Customers.vue';
@@ -34,6 +35,11 @@ const routes = [
                 path: 'products',
                 name: 'app.products',
                 component: Products
+            },
+            {
+                path: 'categories',
+                name: 'app.categories',
+                component: Categories
             },
             {
                 path: 'products/create',

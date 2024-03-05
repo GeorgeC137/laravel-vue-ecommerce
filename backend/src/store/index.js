@@ -27,6 +27,10 @@ const store = createStore({
             page: 1,
             data: [],
         },
+        categories: {
+            loading: false,
+            data: [],
+        },
         customers: {
             loading: false,
             links: [],
@@ -129,6 +133,20 @@ const store = createStore({
                     commit('setUsersLoading', false)
                 })
         },
+        getCategories({ commit }, { sort_field, sort_direction } = {}) {
+            commit('setCategoriesLoading', true);
+            return axiosClient.get('/categories', {
+                    params: { sort_field, sort_direction }
+                })
+                .then((res) => {
+                    commit('setCategoriesLoading', false);
+                    commit('setCategories', res.data);
+                    return res;
+                })
+                .catch(() => {
+                    commit('setCategoriesLoading', false)
+                })
+        },
         getCustomers({ commit }, { url = null, search = '', perPage = 10, sort_field, sort_direction } = {}) {
             url = url || '/customers'
             commit('setCustomersLoading', true);
@@ -185,6 +203,13 @@ const store = createStore({
                     return res;
                 })
         },
+        createCategory({ commit }, category) {
+            return axiosClient.post('/categories', category)
+                .then((res) => {
+                    commit('setCategories', res.data)
+                    return res;
+                })
+        },
         createCustomer({ commit }, customer) {
             return axiosClient.post('/customers', customer)
                 .then((res) => {
@@ -228,6 +253,13 @@ const store = createStore({
                     return res;
                 })
         },
+        updateCategory({ commit }, category) {
+            return axiosClient.put(`/categories/${category.id}`, category)
+                .then((res) => {
+                    commit('setCategories', res.data)
+                    return res;
+                })
+        },
         updateCustomer({ commit }, customer) {
             return axiosClient.put(`/customers/${customer.id}`, customer)
                 .then((res) => {
@@ -241,6 +273,9 @@ const store = createStore({
         deleteUser({  }, id) {
             return axiosClient.delete(`/users/${id}`)
         },
+        deleteCategory({  }, id) {
+            return axiosClient.delete(`/categories/${id}`)
+        },
         deleteCustomer({  }, id) {
             return axiosClient.delete(`/customers/${id}`)
         },
@@ -249,6 +284,9 @@ const store = createStore({
         },
         getUser({  }, id) {
             return axiosClient.get(`/users/${id}`)
+        },
+        getCategory({  }, id) {
+            return axiosClient.get(`/categories/${id}`)
         },
         getCustomer({  }, id) {
             return axiosClient.get(`/customers/${id}`)
@@ -290,6 +328,9 @@ const store = createStore({
             state.users.limit = users.meta.per_page
             state.users.total = users.meta.total
         },
+        setCategories: (state, categories) => {
+            state.categories.data = categories.data
+        },
         setCustomers: (state, customers) => {
             state.customers.data = customers.data
             state.customers.links = customers.meta.links
@@ -313,6 +354,9 @@ const store = createStore({
         },
         setUsersLoading: (state, loading) => {
             state.users.loading = loading
+        },
+        setCategoriesLoading: (state, loading) => {
+            state.categories.loading = loading
         },
         setCustomersLoading: (state, loading) => {
             state.customers.loading = loading
