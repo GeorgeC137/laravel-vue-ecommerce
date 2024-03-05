@@ -113,7 +113,7 @@ onMounted(() => {
 
 function onSubmit($event, close = false) {
   loading.value = true;
-  product.value.quantity = product.value.quantity || null;
+  product.value.quantity = product.value.quantity || 0;
   if (product.value.id) {
     store.dispatch("updateProduct", product.value).then((response) => {
       loading.value = false;
