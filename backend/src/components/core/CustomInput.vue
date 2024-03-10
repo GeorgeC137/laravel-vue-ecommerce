@@ -1,7 +1,10 @@
 <template>
   <div>
     <label for="sr-only">{{ label }}</label>
-    <div class="flex rounded-md mt-1 shadow-sm">
+    <div
+      class="flex rounded-md mt-1"
+      :class="type === 'checkbox' ? 'items-center' : 'shadow-sm'"
+    >
       <span
         v-if="prepend"
         class="inline-flex items-center border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm px-3 rounded-l-md"

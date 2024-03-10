@@ -15,10 +15,12 @@ class Category extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name',
-        'slug',
         'parent_id',
+        'slug',
+        'name',
         'active',
+        'created_by',
+        'updated_by',
     ];
 
     public function getSlugOptions(): SlugOptions

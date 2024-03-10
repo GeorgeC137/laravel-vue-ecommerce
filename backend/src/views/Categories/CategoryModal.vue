@@ -35,7 +35,7 @@
                 <DialogTitle as="h3" class="text-lg leading-6 font-medium text-gray-900">
                   {{
                     category.id
-                      ? `Update category: "${props.category.name}"`
+                      ? `update category: "${props.category.name}"`
                       : "Create new Category"
                   }}
                 </DialogTitle>
@@ -61,13 +61,23 @@
               </header>
               <form @submit.prevent="onSubmit">
                 <div class="bg-white pb-4 pt-5 px-4">
-                  <CustomInput class="mb-2" v-model="category.name" label="User Name" />
-                  <CustomInput class="mb-2" v-model="category.email" label="User Email" />
                   <CustomInput
-                    type="password"
                     class="mb-2"
-                    v-model="category.password"
-                    label="User Password"
+                    v-model="category.name"
+                    label="Category Name"
+                  />
+                  <CustomInput
+                    type="select"
+                    :select-options="parentCategories"
+                    class="mb-2"
+                    v-model="category.parent_id"
+                    label="Parent"
+                  />
+                  <CustomInput
+                    type="checkbox"
+                    class="mb-2"
+                    v-model="category.active"
+                    label="Active"
                   />
                 </div>
                 <footer class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
@@ -121,7 +131,8 @@ const props = defineProps({
 const category = ref({
   id: props.category.id,
   name: props.category.name,
-  email: props.category.email,
+  parent_id: props.category.parent_id,
+  active: props.category.active,
 });
 
 const emit = defineEmits(["update:modelValue", "close"]);
@@ -131,11 +142,26 @@ const show = computed({
   set: (value) => emit("update:modelValue", value),
 });
 
+const parentCategories = computed(() => {
+  return [
+    { key: "", text: "Select Parent Category" },
+    ...store.state.categories.data
+      .filter((c) => {
+        if (category.value.id) {
+          return c.id !== category.value.id;
+        }
+        return true;
+      })
+      .map((c) => ({ key: c.id, text: c.name })),
+  ];
+});
+
 onUpdated(() => {
   category.value = {
     id: props.category.id,
     name: props.category.name,
-    email: props.category.email,
+    parent_id: props.category.parent_id,
+    active: props.category.active,
   };
 });
 
@@ -146,11 +172,12 @@ function closeModal() {
 
 function onSubmit() {
   loading.value = true;
+  category.value.active = !!category.value.active;
   if (category.value.id) {
     store.dispatch("updateCategory", category.value).then((response) => {
       loading.value = false;
       if (response.status === 200) {
-        store.commit("showToast", "Category has been successfully updated");
+        store.commit("showToast", "Category successfully updated");
         store.dispatch("getCategories");
         closeModal();
       }
@@ -159,7 +186,7 @@ function onSubmit() {
     store.dispatch("createCategory", category.value).then((response) => {
       loading.value = false;
       if (response.status === 201) {
-        store.commit("showToast", "Category has been successfully created");
+        store.commit("showToast", "Category successfully created");
         store.dispatch("getCategories");
         closeModal();
       }

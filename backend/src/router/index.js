@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../views/Dashboard.vue';
 import Products from '../views/Products/Products.vue';
-import Categories from '../views/Categories/Categories.vue';
 import ProductForm from '../views/Products/ProductForm.vue';
 import Users from '../views/Users/Users.vue';
+import Categories from '../views/Categories/Categories.vue';
 import Customers from '../views/Customers/Customers.vue';
 import Orders from '../views/Orders/Orders.vue';
 import OrderView from '../views/Orders/OrderView.vue';

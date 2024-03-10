@@ -13,8 +13,12 @@
                         :sort-direction="sortDirection">ID</TableHeaderCell>
                     <TableHeaderCell @click="sortCategories" class="border-b-2 p-2 text-left" field="name"
                         :sort-field="sortField" :sort-direction="sortDirection">Name</TableHeaderCell>
-                    <TableHeaderCell @click="sortCategories" class="border-b-2 p-2 text-left" field="email"
-                        :sort-field="sortField" :sort-direction="sortDirection">Email</TableHeaderCell>
+                    <TableHeaderCell @click="sortCategories" class="border-b-2 p-2 text-left" field="slug"
+                        :sort-field="sortField" :sort-direction="sortDirection">Slug</TableHeaderCell>
+                    <TableHeaderCell @click="sortCategories" class="border-b-2 p-2 text-left" field="active"
+                        :sort-field="sortField" :sort-direction="sortDirection">Active</TableHeaderCell>
+                    <TableHeaderCell @click="sortCategories" class="border-b-2 p-2 text-left" field="parent_id"
+                        :sort-field="sortField" :sort-direction="sortDirection">Parent</TableHeaderCell>
                     <TableHeaderCell @click="sortCategories" class="border-b-2 p-2 text-left" field="updated_at"
                         :sort-field="sortField" :sort-direction="sortDirection">Create Date</TableHeaderCell>
                     <TableHeaderCell field="actions" class="border-b-2 p-2 text-left">Actions</TableHeaderCell>
@@ -23,7 +27,7 @@
 
             <tbody v-if="categories.loading || !categories.data.length">
                 <tr>
-                    <td colspan="5">
+                    <td colspan="7">
                         <Spinner class="my-4" v-if="categories.loading" />
                         <p v-else class="text-gray-700 py-8 text-center">There are no categories</p>
                     </td>
@@ -37,7 +41,13 @@
                     <td class="border-b p-2">{{ category.name }}</td>
                     </td>
                     <td class="border-b p-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
-                        {{ category.email }}
+                        {{ category.slug }}
+                    </td>
+                    <td class="border-b p-2">
+                        {{ category.active ? 'Yes' : 'No' }}
+                    </td>
+                    <td class="border-b p-2">
+                        {{ category.parent?.name }}
                     </td>
                     <td class="border-b p-2">{{ category.created_at }}</td>
                     <td class="border-b p-2">
@@ -86,24 +96,6 @@
                 </tr>
             </tbody>
         </table>
-
-        <div v-if="!categories.loading && categories.data.length" class="flex justify-between items-center mt-5">
-            <span> Showing from {{ categories.from }} to {{ categories.to }} </span>
-
-            <nav v-if="categories.total > categories.limit"
-                class="relative z-0 inline-flex justify-center rounded-md shadow-md -space-x-px" aria-label="Pagination">
-                <a href="#" @click="getCurrentPage($event, link)" v-html="link.label" :disabled="!link.url"
-                    v-for="(link, ind) in categories.links" :key="ind"
-                    class="relative inline-flex items-center px-4 py-2 border text-sm font-medium whitespace-nowrap" :class="[
-                        link.active
-                            ? 'z-10 bg-indigo-50 border-indigo-600 text-indigo-600'
-                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50',
-                        ind === 0 ? 'rounded-l-md' : '',
-                        ind === categories.links.length - 1 ? 'rounded-r-md' : '',
-                        !link.url ? 'bg-gray-100 text-gray-700' : '',
-                    ]" aria-current="page"></a>
-            </nav>
-        </div>
     </div>
 </template>
 
@@ -132,14 +124,6 @@ function getCategories() {
     });
 }
 
-function getCurrentPage(e, link) {
-    e.preventDefault();
-    if (!link.url || link.active) {
-        return;
-    }
-    store.dispatch("getCategories", { url: link.url });
-}
-
 function sortCategories(field) {
     if (sortField.value === field) {
         if (sortDirection.value === "asc") {
@@ -165,7 +149,7 @@ function deleteCategory(category) {
     }
 
     store.dispatch("deleteCategory", category.id).then(() => {
-        store.commit('showToast', 'Category has been successfully deleted');
+        store.commit('showToast', 'Category successfully deleted');
         store.dispatch("getCategories");
     });
 }

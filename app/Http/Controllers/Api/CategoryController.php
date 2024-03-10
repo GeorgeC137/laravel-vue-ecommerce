@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
-use Spatie\FlareClient\Api;
 
 class CategoryController extends Controller
 {
@@ -19,11 +18,11 @@ class CategoryController extends Controller
         $sortField = request('sort_field', 'updated_at');
         $sortDirection = request('sort_direction', 'desc');
 
-        $categories = Category::query()
+        $category = Category::query()
             ->orderBy($sortField, $sortDirection)
             ->get();
 
-        return CategoryResource::collection($categories);
+        return CategoryResource::collection($category);
     }
 
     /**
@@ -32,9 +31,19 @@ class CategoryController extends Controller
     public function store(StoreCategoryRequest $request)
     {
         $validatedData = $request->validated();
+        $validatedData['created_by'] = $request->user()->id;
+        $validatedData['updated_by'] = $request->user()->id;
 
         $category = Category::create($validatedData);
 
+        return new CategoryResource($category);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Category $category)
+    {
         return new CategoryResource($category);
     }
 
@@ -44,6 +53,7 @@ class CategoryController extends Controller
     public function update(UpdateCategoryRequest $request, Category $category)
     {
         $validatedData = $request->validated();
+        $validatedData['updated_by'] = $request->user()->id;
 
         $category->update($validatedData);
 

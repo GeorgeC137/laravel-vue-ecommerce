@@ -65,6 +65,9 @@ const store = createStore({
         customer: {
             data: {}
         },
+        category: {
+            data: {}
+        },
         countries: [],
         dateOptions: [
             { key: "1d", text: "Last Day" },
@@ -206,7 +209,7 @@ const store = createStore({
         createCategory({ commit }, category) {
             return axiosClient.post('/categories', category)
                 .then((res) => {
-                    commit('setCategories', res.data)
+                    commit('setCategory', res.data)
                     return res;
                 })
         },
@@ -256,7 +259,7 @@ const store = createStore({
         updateCategory({ commit }, category) {
             return axiosClient.put(`/categories/${category.id}`, category)
                 .then((res) => {
-                    commit('setCategories', res.data)
+                    commit('setCategory', res.data)
                     return res;
                 })
         },
@@ -369,6 +372,9 @@ const store = createStore({
         },
         setAdminUsers: (state, adminUsers) => {
             state.adminUsers.data = adminUsers.data;
+        },
+        setCategory: (state, category) => {
+            state.category.data = category.data;
         },
         setCustomer: (state, customer) => {
             state.customer.data = customer.data;
