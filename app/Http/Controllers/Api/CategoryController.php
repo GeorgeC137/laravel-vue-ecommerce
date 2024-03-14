@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
+use App\Http\Resources\CategoryTreeResource;
 
 class CategoryController extends Controller
 {
@@ -23,6 +24,11 @@ class CategoryController extends Controller
             ->get();
 
         return CategoryResource::collection($category);
+    }
+
+    public function getAsTree()
+    {
+        return Category::getActiveAsTree(CategoryTreeResource::class);
     }
 
     /**

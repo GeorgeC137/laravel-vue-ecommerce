@@ -28,6 +28,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::apiResource('/products', ProductController::class);
     Route::apiResource('/users', UserController::class);
     Route::apiResource('/customers', CustomerController::class);
+    Route::get('/categories/tree', [CategoryController::class, 'getAsTree']);
     Route::apiResource('/categories', CategoryController::class);
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/countries', [CustomerController::class, 'countries']);

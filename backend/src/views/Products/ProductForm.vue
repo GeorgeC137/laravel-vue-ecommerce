@@ -38,6 +38,12 @@
             class="mb-2"
             label="Published"
           />
+          <treeselect
+            class="mt-2"
+            v-model="product.categories"
+            :multiple="true"
+            :options="options"
+          />
         </div>
         <div class="col-span-1 pb-4 pt-5 px-4">
           <ImagePreview
@@ -84,10 +90,14 @@ import Spinner from "../../components/core/Spinner.vue";
 import ImagePreview from "../../components/ImagePreview.vue";
 import store from "../../store";
 import { useRoute, useRouter } from "vue-router";
+import Treeselect from "vue3-treeselect";
+import "vue3-treeselect/dist/vue3-treeselect.css";
+import axiosClient from "../../axios";
 
 const loading = ref(false);
 const route = useRoute();
 const router = useRouter();
+const options = ref([]);
 
 const product = ref({
   id: null,
@@ -99,6 +109,7 @@ const product = ref({
   deleted_images: [],
   image_positions: {},
   description: "",
+  categories: [],
 });
 
 onMounted(() => {
@@ -109,6 +120,10 @@ onMounted(() => {
       product.value = response.data;
     });
   }
+
+  axiosClient.get("/categories/tree").then((result) => {
+    options.value = result.data;
+  });
 });
 
 function onSubmit($event, close = false) {

@@ -12,6 +12,8 @@ use App\Http\Requests\ProductRequest;
 use App\Http\Resources\ProductResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\ProductListResource;
+use App\Models\Category;
+use App\Models\ProductCategory;
 use App\Models\ProductImage;
 
 class ProductController extends Controller
@@ -46,10 +48,12 @@ class ProductController extends Controller
 
         $images = $validatedData['images'] ?? [];
         $imagePositions = $validatedData['image_positions'] ?? [];
+        $categories = $validatedData['categories'] ?? [];
 
         $product = Product::create($validatedData);
 
         $this->saveImages($images, $imagePositions, $product);
+        $this->saveCategories($categories, $product);
 
         return new ProductResource($product);
     }
@@ -74,8 +78,10 @@ class ProductController extends Controller
         $images = $validatedData['images'] ?? [];
         $deletedImages = $validatedData['deleted_images'] ?? [];
         $imagePositions = $validatedData['image_positions'] ?? [];
+        $categories = $validatedData['categories'] ?? [];
 
         $this->saveImages($images, $imagePositions, $product);
+        $this->saveCategories($categories, $product);
 
         if (count($deletedImages) > 0) {
             $this->deleteImages($deletedImages, $product);
@@ -145,5 +151,13 @@ class ProductController extends Controller
 
             $image->delete();
         }
+    }
+
+    private function saveCategories($categoryIds, Product $product)
+    {
+        ProductCategory::where('product_id', $product->id)->delete();
+        $data = array_map(fn($id) => (['category_id' => $id, 'product_id' => $product->id]), $categoryIds);
+
+        ProductCategory::insert($data);
     }
 }

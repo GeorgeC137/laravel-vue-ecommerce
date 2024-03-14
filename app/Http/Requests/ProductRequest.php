@@ -26,6 +26,7 @@ class ProductRequest extends FormRequest
             'images.*' => 'nullable|image',
             'deleted_images.*' => 'nullable|int',
             'image_positions.*' => 'nullable|int',
+            'categories.*' => 'nullable|int|exists:categories,id',
             'price' => 'required|numeric',
             'quantity' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
