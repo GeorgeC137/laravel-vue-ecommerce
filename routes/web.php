@@ -20,6 +20,7 @@ use App\Http\Controllers\ProfileController;
 
 Route::middleware(['guestOrVerified'])->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('home');
+    Route::get('/category/{category:slug}', [ProductController::class, 'byCategory'])->name('byCategory');
     Route::get('/product/{product:slug}', [ProductController::class, 'show'])->name('product.show');
 
     Route::prefix('/cart')->name('cart.')->group(function () {
