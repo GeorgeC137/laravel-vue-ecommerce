@@ -108,8 +108,8 @@ import Spinner from "../../components/core/Spinner.vue";
 import TableHeaderCell from "../../components/core/Table/TableHeaderCell.vue";
 
 const categories = computed(() => store.state.categories);
-const sortField = ref("updated_at");
-const sortDirection = ref("desc");
+const sortField = ref("name");
+const sortDirection = ref("asc");
 
 const emit = defineEmits(["clickEdit"]);
 

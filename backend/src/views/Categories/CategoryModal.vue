@@ -65,6 +65,7 @@
                     class="mb-2"
                     v-model="category.name"
                     label="Category Name"
+                    :errors="errors['name']"
                   />
                   <CustomInput
                     type="select"
@@ -72,12 +73,14 @@
                     class="mb-2"
                     v-model="category.parent_id"
                     label="Parent"
+                    :errors="errors['parent_id']"
                   />
                   <CustomInput
                     type="checkbox"
                     class="mb-2"
                     v-model="category.active"
                     label="Active"
+                    :errors="errors['active']"
                   />
                 </div>
                 <footer class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
@@ -119,6 +122,7 @@ import {
 } from "@headlessui/vue";
 
 const loading = ref(false);
+const errors = ref({});
 
 const props = defineProps({
   modelValue: Boolean,
@@ -152,7 +156,12 @@ const parentCategories = computed(() => {
         }
         return true;
       })
-      .map((c) => ({ key: c.id, text: c.name })),
+      .map((c) => ({ key: c.id, text: c.name }))
+      .sort((c1, c2) => {
+        if (c1.text < c2.text) return -1;
+        if (c1.text > c2.text) return 1;
+        return 0;
+      }),
   ];
 });
 
@@ -168,29 +177,42 @@ onUpdated(() => {
 function closeModal() {
   show.value = false;
   emit("close");
+  errors.value = {};
 }
 
 function onSubmit() {
   loading.value = true;
   category.value.active = !!category.value.active;
   if (category.value.id) {
-    store.dispatch("updateCategory", category.value).then((response) => {
-      loading.value = false;
-      if (response.status === 200) {
-        store.commit("showToast", "Category successfully updated");
-        store.dispatch("getCategories");
-        closeModal();
-      }
-    });
+    store
+      .dispatch("updateCategory", category.value)
+      .then((response) => {
+        loading.value = false;
+        if (response.status === 200) {
+          store.commit("showToast", "Category successfully updated");
+          store.dispatch("getCategories");
+          closeModal();
+        }
+      })
+      .catch((err) => {
+        loading.value = false;
+        errors.value = err.response.data.errors;
+      });
   } else {
-    store.dispatch("createCategory", category.value).then((response) => {
-      loading.value = false;
-      if (response.status === 201) {
-        store.commit("showToast", "Category successfully created");
-        store.dispatch("getCategories");
-        closeModal();
-      }
-    });
+    store
+      .dispatch("createCategory", category.value)
+      .then((response) => {
+        loading.value = false;
+        if (response.status === 201) {
+          store.commit("showToast", "Category successfully created");
+          store.dispatch("getCategories");
+          closeModal();
+        }
+      })
+      .catch((err) => {
+        loading.value = false;
+        errors.value = err.response.data.errors;
+      });
   }
 }
 </script>

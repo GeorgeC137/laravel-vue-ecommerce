@@ -22,11 +22,13 @@ class ProductController extends Controller
 
     public function byCategory(Category $category)
     {
+        $categories = Category::getAllChildrenByParent($category);
+
         $products = Product::query()
             ->select('products.*')
             ->join('product_categories AS pc', 'pc.product_id', '=', 'products.id')
             ->where('published', '=', 1)
-            ->where('pc.category_id', $category->id)
+            ->whereIn('pc.category_id', array_map(fn($c) => $c->id, $categories))
             ->orderBy('created_at', 'desc')
             ->paginate(5);
 
