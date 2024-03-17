@@ -57,10 +57,21 @@
               </header>
               <form @submit.prevent="onSubmit">
                 <div class="bg-white pb-4 pt-5 px-4">
-                  <CustomInput class="mb-2" v-model="user.name" label="User Name" />
-                  <CustomInput class="mb-2" v-model="user.email" label="User Email" />
+                  <CustomInput
+                    class="mb-2"
+                    v-model="user.name"
+                    label="User Name"
+                    :errors="errors['name']"
+                  />
+                  <CustomInput
+                    class="mb-2"
+                    v-model="user.email"
+                    label="User Email"
+                    :errors="errors['email']"
+                  />
                   <CustomInput
                     type="password"
+                    :errors="errors['password']"
                     class="mb-2"
                     v-model="user.password"
                     label="User Password"
@@ -105,6 +116,7 @@ import {
 } from "@headlessui/vue";
 
 const loading = ref(false);
+const errors = ref({});
 
 const props = defineProps({
   modelValue: Boolean,
@@ -138,28 +150,41 @@ onUpdated(() => {
 function closeModal() {
   show.value = false;
   emit("close");
+  errors.value = {};
 }
 
 function onSubmit() {
   loading.value = true;
   if (user.value.id) {
-    store.dispatch("updateUser", user.value).then((response) => {
-      loading.value = false;
-      if (response.status === 200) {
-        store.commit("showToast", "User has been successfully updated");
-        store.dispatch("getUsers");
-        closeModal();
-      }
-    });
+    store
+      .dispatch("updateUser", user.value)
+      .then((response) => {
+        loading.value = false;
+        if (response.status === 200) {
+          store.commit("showToast", "User has been successfully updated");
+          store.dispatch("getUsers");
+          closeModal();
+        }
+      })
+      .catch((err) => {
+        loading.value = false;
+        errors.value = err.response.data.errors;
+      });
   } else {
-    store.dispatch("createUser", user.value).then((response) => {
-      loading.value = false;
-      if (response.status === 201) {
-        store.commit("showToast", "User has been successfully created");
-        store.dispatch("getUsers");
-        closeModal();
-      }
-    });
+    store
+      .dispatch("createUser", user.value)
+      .then((response) => {
+        loading.value = false;
+        if (response.status === 201) {
+          store.commit("showToast", "User has been successfully created");
+          store.dispatch("getUsers");
+          closeModal();
+        }
+      })
+      .catch((err) => {
+        loading.value = false;
+        errors.value = err.response.data.errors;
+      });
   }
 }
 </script>
