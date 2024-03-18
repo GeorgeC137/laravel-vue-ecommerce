@@ -4,43 +4,64 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::query()
-            ->where('published', '=', 1)
-            ->orderBy('created_at', 'desc')
-            ->paginate(5);
+        $query = Product::query();
 
-        return view('product.index', [
-            'products' => $products
-        ]);
+        return $this->renderProducts($query);
     }
 
     public function byCategory(Category $category)
     {
         $categories = Category::getAllChildrenByParent($category);
 
-        $products = Product::query()
+        $query = Product::query()
             ->select('products.*')
             ->join('product_categories AS pc', 'pc.product_id', '=', 'products.id')
-            ->where('published', '=', 1)
-            ->whereIn('pc.category_id', array_map(fn($c) => $c->id, $categories))
-            ->orderBy('created_at', 'desc')
-            ->paginate(5);
+            ->whereIn('pc.category_id', array_map(fn ($c) => $c->id, $categories));
 
-        return view('product.index', [
-            'products' => $products
-        ]);
+        return $this->renderProducts($query);
     }
 
     public function show(Product $product)
     {
         return view('product.show', [
             'product' => $product
+        ]);
+    }
+
+    private function renderProducts(Builder $query)
+    {
+        $search = request()->get('search');
+        $sort = request()->get('sort', '-updated_at');
+
+        if ($sort) {
+            $sortDirection = 'asc';
+
+            if ($sort[0] === '-') {
+                $sortDirection = 'desc';
+            }
+
+            $sortField = preg_replace('/^-?/', '', $sort);
+
+            $query->orderBy($sortField, $sortDirection);
+        }
+
+        $products = $query
+            ->where('published', '=', 1)
+            ->where(function ($query) use ($search) {
+                $query->where('products.title', 'like', "%$search%")
+                    ->orwhere('products.description', 'like', "%$search%");
+            })
+            ->paginate(5);
+
+        return view('product.index', [
+            'products' => $products
         ]);
     }
 }
