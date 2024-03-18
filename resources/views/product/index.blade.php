@@ -10,7 +10,11 @@ $categoryList = App\Models\Category::getActiveAsTree();
         searchKeyword: '{{ request()->get('search') }}',
         updateUrl() {
             const params = new URLSearchParams(window.location.search)
-            params.set('sort', this.selectedSort)
+            if (this.selectedSort && this.selectedSort !== '-updated_at') {
+                params.set('sort', this.selectedSort)
+            } else {
+                params.delete('sort')
+            }
             if (this.searchKeyword) {
                 params.set('search', this.searchKeyword)
             } else {
@@ -73,6 +77,6 @@ $categoryList = App\Models\Category::getActiveAsTree();
             @endforeach
         </div>
 
-        {{ $products->links() }}
+        {{ $products->appends(['sort' => request('sort'), 'search' => request('search')])->links() }}
     @endif
 </x-app-layout>
