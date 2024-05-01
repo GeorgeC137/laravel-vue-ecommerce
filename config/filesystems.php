@@ -33,8 +33,8 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
-            'throw' => false,
             'visibility' => 'public',
+            'throw' => false,
         ],
 
         'public' => [
