@@ -185,7 +185,6 @@ const store = createStore({
                 const form = new FormData();
                 form.append('title', product.title);
                 product.images.forEach((im) => form.append('images[]', im));
-                form.append('image', product.image);
                 form.append('price', product.price);
                 form.append('quantity', product.quantity);
                 form.append('published', product.published ? 1 : 0);
