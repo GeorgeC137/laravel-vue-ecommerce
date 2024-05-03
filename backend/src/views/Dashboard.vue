@@ -217,7 +217,7 @@ function updateDashboard() {
   axiosClient.get("/dashboard/income-amount", { params: { d } }).then(({ data }) => {
     totalIncome.value = new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "KSH",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(data);
@@ -231,7 +231,7 @@ function updateDashboard() {
         labels: [],
         datasets: [
           {
-            backgroundColor: ["#41B883", "#E46651", "#00D8FF", "#DD1B16"],
+            backgroundColor: ["#41B883", "#E46651", "#d5f00a", "#00D8FF", "#DD1B16"],
             data: [],
           },
         ],
