@@ -95,7 +95,7 @@
           <td
             class="border-b p-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
           >
-            ${{ order.total_price }}
+            {{ $filters.currencyUSD(order.total_price) }}
           </td>
           <td class="border-b p-2">{{ order.created_at }}</td>
           <td class="border-b p-2">
