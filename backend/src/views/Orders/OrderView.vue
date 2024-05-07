@@ -30,7 +30,7 @@
           </tr>
           <tr>
             <td class="font-bold">SubTotal</td>
-            <td>${{ order.total_price }}</td>
+            <td>{{ $filters.currencyUSD(order.total_price) }}</td>
           </tr>
         </tbody>
       </table>
@@ -119,7 +119,9 @@
 
           <div class="flex justify-between items-center mt-3">
             <div class="flex items-center">Qty: {{ item.quantity }}</div>
-            <div class="text-lg font-semibold mb-4">${{ item.unit_price }}</div>
+            <div class="text-lg font-semibold mb-4">
+              {{ $filters.currencyUSD(item.unit_price) }}
+            </div>
           </div>
         </div>
 
@@ -128,6 +130,10 @@
     </div>
     <!--/ Order Items -->
   </div>
+  <Spinner
+    v-else
+    class="absolute top-0 left-0 bg-white right-0 bottom-0 flex items-center justify-center z-50"
+  />
 </template>
 
 <script setup>
@@ -136,6 +142,7 @@ import store from "../../store";
 import { onMounted, ref } from "vue";
 import axiosClient from "../../axios";
 import OrderStatus from "./OrderStatus.vue";
+import Spinner from "../../components/core/Spinner.vue";
 
 const route = useRoute();
 const order = ref(null);

@@ -31,7 +31,7 @@
             class="mb-2"
             label="Price"
             :errors="errors['price']"
-            prepend="$ "
+            prepend="KSH "
           />
           <CustomInput
             type="number"

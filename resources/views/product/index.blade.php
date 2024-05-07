@@ -65,7 +65,7 @@ $categoryList = App\Models\Category::getActiveAsTree();
                                 {{ $product->title }}
                             </a>
                         </h3>
-                        <h5 class="font-bold">${{ $product->price }}</h5>
+                        <h5 class="font-bold">KSH {{ $product->price }}</h5>
                     </div>
                     <div class="flex justify-between py-3 px-4">
                         <button class="btn-primary" @click="addToCart()">
