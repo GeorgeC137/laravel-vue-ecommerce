@@ -42,7 +42,7 @@
                                     <div class="flex justify-between mb-3">
                                         <h3 x-text="product.title">
                                         </h3>
-                                        <span class="text-lg font-semibold" x-text="`$${product.price}`"></span>
+                                        <span class="text-lg font-semibold" x-text="`KSH ${product.price}`"></span>
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <div class="flex items-center">
@@ -64,7 +64,7 @@
                     <div class="border-t border-gray-300 mt-5 pt-5">
                         <div class="flex justify-between">
                             <span class="font-bold">Subtotal</span>
-                            <span x-text="`$${cartTotal}`"></span>
+                            <span x-text="`KSH ${cartTotal}`"></span>
                         </div>
                         <p>Shipping and tax will be applied on checkout</p>
                     </div>
