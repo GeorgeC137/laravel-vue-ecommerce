@@ -17,7 +17,7 @@
     </tr>
     <tr>
         <th>Order Price</th>
-        <td>${{ $order->total_price }}</td>
+        <td>KSH {{ $order->total_price }}</td>
     </tr>
     <tr>
         <th>Order Date</th>
@@ -38,7 +38,7 @@
             <img src="{{ $item->product->image }}" alt="" style="width: 100px">
         </td>
         <td>{{ $item->product->title }}</td>
-        <td>${{ $item->unit_price * $item->quantity }}</td>
+        <td>KSH {{ $item->unit_price * $item->quantity }}</td>
         <td>{{ $item->quantity }}</td>
     </tr>
     @endforeach>
